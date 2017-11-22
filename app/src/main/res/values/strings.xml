@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Alpha Fitness</string>
+    <string name="title_activity_record_workout">Map</string>
+
+    <string name="title_activity_profile_screen">ProfileScreen</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>
