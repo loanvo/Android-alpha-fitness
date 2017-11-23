@@ -42,7 +42,7 @@ import org.joda.time.Duration;
 
 import java.text.DecimalFormat;
 
-public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
+public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallback {
     //Map's variable
     private GoogleMap mMap = null;
     private Location mLocation = null;
@@ -72,10 +72,10 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
         record = false;
 
          portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-
+/*
         //Initialize sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);*/
 
         //Initialize the sericei
         remoteConnection = new RemoteConnection();
@@ -145,7 +145,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
     }
-
+/*
     @Override
     protected void onResume() {
         super.onResume();
@@ -180,7 +180,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
-
+*/
     class RemoteConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {

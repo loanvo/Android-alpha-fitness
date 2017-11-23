@@ -1,7 +1,12 @@
 package cs175.alphafitness;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -11,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.joda.time.DateTime;
 
@@ -20,7 +26,7 @@ import java.text.DecimalFormat;
  * Created by loan vo on 11/21/17.
  */
 
-public class PortraitFragment extends Fragment {
+public class PortraitFragment extends Fragment implements SensorEventListener{
 
     private long time;
 
@@ -34,7 +40,14 @@ public class PortraitFragment extends Fragment {
     private TextView durationView;
     private Button button;
 
-    Boolean record;
+    //Sensor's variable
+    SensorManager sensorManager;
+    Sensor mStepCounter;
+    private int mSteps = 0;
+    private int mCounterSteps = 0;
+    final static double STEP_LENGTH = (0.67 + 0.762)/2; // average step length in meter
+    private double workoutDistance;
+    private Boolean record;
     WorkoutData data;
     //format distance data type
     DecimalFormat df = new DecimalFormat("####.###");
@@ -52,6 +65,10 @@ public class PortraitFragment extends Fragment {
         durationView = (TextView) view.findViewById(R.id.duration_view);
         record = false;
         data = new WorkoutData();
+
+        //Initialize sensor
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
 
         // implement action for workout button
@@ -117,5 +134,41 @@ public class PortraitFragment extends Fragment {
             handler.postDelayed(this, 0);
         }
     };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        if(countSensor != null){
+            sensorManager.registerListener(this, countSensor, sensorManager.SENSOR_DELAY_UI);
+        } else {
+            Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //Sensor change detector
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (record == true) {
+
+            if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+                if (mCounterSteps < 1) {
+                    // initial value
+                    mCounterSteps = (int) event.values[0];
+                }
+                // Calculate steps taken based on first counter value received.
+                mSteps = (int) event.values[0] - mCounterSteps;
+
+                // calculate distance base on amounts of steps in km
+                workoutDistance = mSteps * STEP_LENGTH/1000;
+                distanceView.setText(df.format(workoutDistance));
+            }
+        }
+    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
 
 }
