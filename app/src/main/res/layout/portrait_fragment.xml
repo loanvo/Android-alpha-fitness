@@ -87,20 +87,25 @@
                 android:paddingLeft="20dp"
                 />
         </TableRow>
-        <LinearLayout
+        <TableRow
             android:layout_width="match_parent"
             android:layout_height="90dp"
             android:background="@color/colorPrimary">
+
 
             <Button
                 android:id="@+id/start_button"
                 android:layout_width="135dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="140dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginLeft="110dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:background="@android:color/holo_green_light"
                 android:text="Start Workout" />
-        </LinearLayout>
+
+
+        </TableRow>
+
 
 
     </TableLayout>

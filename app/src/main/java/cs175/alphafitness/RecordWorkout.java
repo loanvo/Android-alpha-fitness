@@ -2,7 +2,10 @@ package cs175.alphafitness;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -15,11 +18,13 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telecom.RemoteConnection;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -55,18 +60,30 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     private double mdistance;
 
 
+    IMyAidlInterface remoteService;
+    RemoteConnection remoteConnection =null;
+
+    PortraitFragment portraitFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_workout);
         record = false;
 
-
-
+         portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
 
         //Initialize sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+
+        //Initialize the sericei
+        remoteConnection = new RemoteConnection();
+        Intent intent = new Intent();
+        intent.setClassName("cs175.alphafitness", cs175.alphafitness.MyService.class.getName());
+        if(!bindService(intent, remoteConnection, BIND_AUTO_CREATE)){
+            Toast.makeText(this, "Fail to bind the remote service ", Toast.LENGTH_LONG).show();
+        }
 
         //Initialize map
         FragmentManager manager = getFragmentManager();
@@ -164,5 +181,34 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
     }
 
+    class RemoteConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            remoteService = IMyAidlInterface.Stub.asInterface((IBinder) service);
+            Toast.makeText(RecordWorkout.this, "Remote Service connected.", Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            remoteService = null;
+            Toast.makeText(RecordWorkout.this, "Remote Service Disconnected", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unbindService(remoteConnection);
+        remoteConnection = null;
+    }
+
+    public void updateWorkout(){
+        try{
+            portraitFragment.startWorkout();
+            throw new RemoteException("Remote Service");
+        } catch (RemoteException e){
+            e.printStackTrace();
+        }
+    }
 
 }

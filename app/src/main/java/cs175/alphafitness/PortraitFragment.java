@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.telecom.RemoteConnection;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import java.text.DecimalFormat;
  */
 
 public class PortraitFragment extends Fragment {
+
     private long time;
 
     private DateTime startDate;
@@ -33,44 +35,47 @@ public class PortraitFragment extends Fragment {
     private Button button;
 
     Boolean record;
-
+    WorkoutData data;
     //format distance data type
     DecimalFormat df = new DecimalFormat("####.###");
-
     Handler handler;
+
+    IMyAidlInterface remoteService;
+    RemoteConnection remoteConnection =null;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.portrait_fragment, container, false);
 
         handler = new Handler();
-        distanceView = (TextView) view.findViewById(R.id.distance_view);
+         distanceView = (TextView) view.findViewById(R.id.distance_view);
         durationView = (TextView) view.findViewById(R.id.duration_view);
         record = false;
+        data = new WorkoutData();
+
 
         // implement action for workout button
         button = (Button) view.findViewById(R.id.start_button);
         button.setTag(1);
         button.setText("Start Workout");
         button.setBackgroundColor(Color.GREEN);
-        button.setOnClickListener(new View.OnClickListener(){
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final int status = (Integer) v.getTag();
-
-                if(status == 1){
+                if (status == 1) {
                     record = true;
                     startWorkout();
                     button.setText("Stop Workout");
                     button.setBackgroundColor(Color.RED);
                     button.setTag(0);
 
-                }else {
+                } else {
                     record = false;
                     stopWorkout();
                     button.setText("Start Workout");
                     button.setBackgroundColor(Color.GREEN);
                     button.setTag(1);
-                    //throw new RemoteException("Remote Service");
                 }
 
             }
@@ -79,17 +84,19 @@ public class PortraitFragment extends Fragment {
         return view;
     }
 
-    public void startWorkout(){
+    public WorkoutData startWorkout(){
         startDate = new DateTime();
         start = SystemClock.uptimeMillis();
         handler.postDelayed(runnable, 0);
+        return data;
     }
 
-    public void stopWorkout(){
+    public WorkoutData stopWorkout(){
         timeBuff += time;
         handler.removeCallbacks(runnable);
 
         endDate = new DateTime();
+        return data;
     }
 
     public Runnable runnable = new Runnable() {
@@ -103,12 +110,11 @@ public class PortraitFragment extends Fragment {
             hours = minutes/60;
             seconds = seconds % 60;
             time = (int) (updateTime % 1000);
-            durationView.setText("" +  String.format("%02d", hours) + ":"
+              durationView.setText("" +  String.format("%02d", hours) + ":"
                     + String.format("%02d", minutes) + ":"
-                    + String.format("%02d", seconds));
+                  + String.format("%02d", seconds));
 
             handler.postDelayed(this, 0);
-
         }
     };
 
