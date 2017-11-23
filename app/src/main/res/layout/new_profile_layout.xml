@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="User Profile"
+            android:textSize="25sp"
+            android:gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginTop="10dp"/>
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Username: "
+        android:textSize="18sp"
+        android:textColor="@color/colorPrimary"
+        android:layout_marginLeft="10dp"
+        android:id="@+id/text1"/>
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:hint="Enter your name"
+        android:id="@+id/edit_name"
+        android:background="@drawable/box"
+        android:gravity="center"
+        android:layout_marginLeft="10dp"/>
+    </TableRow>
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gender: "
+        android:textSize="18sp"
+        android:textColor="@color/colorPrimary"
+        android:layout_below="@+id/text1"
+        android:layout_marginLeft="10dp"/>
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:hint="Gender"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/box"
+        android:gravity="center"
+        android:id="@+id/edit_gender"/>
+</TableRow>
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weight: "
+            android:textSize="18sp"
+            android:textColor="@color/colorPrimary"
+            android:layout_below="@+id/text1"
+            android:layout_marginLeft="10dp"/>
+        <EditText
+            android:layout_width="200dp"
+            android:layout_height="40dp"
+            android:hint="Weight"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/box"
+            android:gravity="center"
+            android:id="@+id/edit_weight"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="lbs"
+            android:textSize="18sp"
+            android:textColor="@color/colorPrimary"
+            android:layout_below="@+id/text1"
+            android:layout_marginLeft="10dp"/>
+
+    </TableRow>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="30dp"
+            android:background="@android:color/holo_green_light"
+            android:gravity="center"
+            android:id="@+id/save_button"
+            android:text="Save"
+            android:layout_marginHorizontal="50dp"
+            android:layout_marginLeft="100dp"/>
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="30dp"
+            android:background="@android:color/darker_gray"
+            android:gravity="center"
+            android:id="@+id/cancel_button"
+            android:text="Cancel"
+            android:layout_marginHorizontal="50dp"
+            android:layout_marginRight="50dp"
+            />
+    </LinearLayout>
+
+</TableLayout>

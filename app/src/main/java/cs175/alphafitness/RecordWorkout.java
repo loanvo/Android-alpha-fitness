@@ -37,28 +37,14 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-
-import java.text.DecimalFormat;
-
 public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallback {
     //Map's variable
     private GoogleMap mMap = null;
     private Location mLocation = null;
     private double distance;
 
-    //Sensor's variable
-    SensorManager sensorManager;
-    Sensor mStepCounter;
-    private int mSteps = 0;
-    private int mCounterSteps = 0;
-    final static double STEP_LENGTH = (0.67 + 0.762)/2; // average step length in meter
-    private Boolean record;
-
-    private double workoutDistance;
+    Boolean record;
     private double mdistance;
-
 
     IMyAidlInterface remoteService;
     RemoteConnection remoteConnection =null;
@@ -72,10 +58,6 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
         record = false;
 
          portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-/*
-        //Initialize sensor
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);*/
 
         //Initialize the sericei
         remoteConnection = new RemoteConnection();
@@ -145,42 +127,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
     }
-/*
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        if(countSensor != null){
-            sensorManager.registerListener(this, countSensor, sensorManager.SENSOR_DELAY_UI);
-        } else {
-            Toast.makeText(this, "Sensor not found", Toast.LENGTH_SHORT).show();
-        }
-    }
 
-    //Sensor change detector
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (record == true) {
-
-            if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-                if (mCounterSteps < 1) {
-                    // initial value
-                    mCounterSteps = (int) event.values[0];
-                }
-                // Calculate steps taken based on first counter value received.
-                mSteps = (int) event.values[0] - mCounterSteps;
-
-                // calculate distance base on amounts of steps in km
-                workoutDistance = mSteps * STEP_LENGTH/1000;
-                //distanceView.setText(df.format(workoutDistance));
-            }
-        }
-    }
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
-*/
     class RemoteConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -205,7 +152,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     public void updateWorkout(){
         try{
             portraitFragment.startWorkout();
-            throw new RemoteException("Remote Service");
+            throw new RemoteException("no Remote Service found");
         } catch (RemoteException e){
             e.printStackTrace();
         }

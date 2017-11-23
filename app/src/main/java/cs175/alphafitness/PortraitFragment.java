@@ -1,12 +1,15 @@
 package cs175.alphafitness;
 
 import android.app.Fragment;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -49,8 +52,24 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     private double workoutDistance;
     private Boolean record;
     WorkoutData data;
+
+    //user profile
+    Profile profile;
+    private int userID;
+    private double weight;
+    private Button profileButton;
+
+    //Casual walking 2mph
+    static final double CONST = 0.57;
+    static final double STEPS_PER_MILE = 2200;
+    private double calo_per_mile;
+    private double calo_per_step;
+    private double burned_calo;
+
     //format distance data type
     DecimalFormat df = new DecimalFormat("####.###");
+    ContentValues contentValues = new ContentValues();
+
     Handler handler;
 
     IMyAidlInterface remoteService;
@@ -58,11 +77,12 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.portrait_fragment, container, false);
+        final View view = inflater.inflate(R.layout.portrait_fragment, container, false);
 
         handler = new Handler();
-         distanceView = (TextView) view.findViewById(R.id.distance_view);
+        distanceView = (TextView) view.findViewById(R.id.distance_view);
         durationView = (TextView) view.findViewById(R.id.duration_view);
+
         record = false;
         data = new WorkoutData();
 
@@ -98,6 +118,17 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
             }
         });
 
+        // user profile
+        profileButton = (Button) view.findViewById(R.id.profile_button);
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), ProfileScreen.class);
+                startActivity(intent);
+            }
+        });
+
+
         return view;
     }
 
@@ -105,6 +136,14 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         startDate = new DateTime();
         start = SystemClock.uptimeMillis();
         handler.postDelayed(runnable, 0);
+
+        contentValues.put(MyContentProvider.USER_ID, userID);
+        contentValues.put(MyContentProvider.DATE, startDate.toString());
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+
+        Uri uri = getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
+        Toast.makeText(getActivity(), uri.toString(), Toast.LENGTH_LONG).show();
+
         return data;
     }
 
@@ -113,6 +152,19 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         handler.removeCallbacks(runnable);
 
         endDate = new DateTime();
+
+        //calculate burned calories
+        calo_per_mile = CONST * weight;
+        calo_per_step = calo_per_mile / STEPS_PER_MILE;
+        burned_calo = mSteps * calo_per_step;
+
+        contentValues.put(MyContentProvider.KEY_TIME, timeBuff);
+        contentValues.put(MyContentProvider.KEY_DISTANCE, workoutDistance);
+        contentValues.put(MyContentProvider.KEY_CALO, burned_calo);
+
+        Uri uri = getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
+        Toast.makeText(getActivity(), uri.toString(), Toast.LENGTH_LONG).show();
+
         return data;
     }
 
@@ -169,6 +221,11 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+    /*public void activateProfile(View view){
+        Intent intent = new Intent(this.getActivity(), ProfileScreen.class);
+        startActivity(intent);
+    }*/
 
 
 }

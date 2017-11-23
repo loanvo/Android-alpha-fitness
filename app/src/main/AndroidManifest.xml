@@ -54,7 +54,9 @@
             android:name=".MyContentProvider"
             android:authorities="cs175.alphafitness"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
+
+        <activity android:name=".ProfileScreen"></activity>
     </application>
 
 </manifest>

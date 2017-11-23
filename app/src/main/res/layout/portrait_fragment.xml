@@ -28,7 +28,7 @@
         android:layout_marginRight="29dp"
         android:background="@android:color/holo_green_light"
         android:drawableTop="@drawable/profile"
-        android:onClick="activateProfile"
+
         android:padding="10dp" />
     <TableLayout
         android:layout_width="match_parent"
