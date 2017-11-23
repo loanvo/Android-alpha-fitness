@@ -45,7 +45,7 @@
             android:layout_width="match_parent">
 
             <TextView
-                android:layout_width="90dp"
+                android:layout_width="80dp"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="Gender:"
@@ -55,9 +55,9 @@
 
             <TextView
                 android:id="@+id/gender_view"
-                android:layout_width="100dp"
+                android:layout_width="90dp"
                 android:layout_height="40dp"
-                android:background="@android:color/darker_gray"></TextView>
+                android:background="@drawable/box"></TextView>
             <TextView
                 android:layout_width="90dp"
                 android:layout_height="match_parent"
@@ -65,14 +65,20 @@
                 android:textColor="@android:color/black"
                 android:textSize="15sp"
                 android:gravity="center"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                />
             <TextView
                 android:id="@+id/weight_view"
-                android:layout_width="150dp"
+                android:layout_width="80dp"
                 android:layout_height="40dp"
-                android:background="@android:color/darker_gray"
+                android:background="@drawable/box"
                 ></TextView>
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="40dp"
+                android:text="lbs"
+                android:gravity="center"
+                ></TextView>
+
         </LinearLayout>
 
         <TableRow
