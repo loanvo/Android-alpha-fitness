@@ -76,10 +76,18 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         genderEdit = (EditText) findViewById(R.id.edit_gender);
         weightEdit = (EditText) findViewById(R.id.edit_weight);
         saveButton = (Button) findViewById(R.id.save_button);
+        Cursor cursor = managedQuery(profile, null, null, null, "user_id");
+        String n="";
+        String g = "";
+        String w = "";
+        if(cursor.moveToFirst()) {
+            nameEdit.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_NAME)));
+            genderEdit.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_GENDER)));
+            weightEdit.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_WEIGHT)));
+        }
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //setContentView(R.layout.activity_profile_screen);
                 Cursor cursor = managedQuery(profile, null, null, null, "user_id");
                 String existName = "";
                 int count = cursor.getCount();
@@ -87,7 +95,6 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                     if(cursor.moveToFirst()){
                         do {
                             existName = cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_NAME));
-                            
                             getContentResolver().delete(profile, MyContentProvider.KEY_NAME + "=?", new String[]{existName});
                         } while (cursor.moveToNext());
                     }
