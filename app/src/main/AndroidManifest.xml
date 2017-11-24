@@ -56,7 +56,9 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".ProfileScreen"></activity>
+        <activity android:name=".ProfileScreen"
+            android:label="Profile"
+            android:parentActivityName=".RecordWorkout"></activity>
     </application>
 
 </manifest>

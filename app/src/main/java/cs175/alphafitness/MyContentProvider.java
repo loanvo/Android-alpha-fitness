@@ -44,7 +44,7 @@ public class MyContentProvider extends ContentProvider {
     private static HashMap <String, String> WORKOUT_PROJECTION_MAP;
 
     private SQLiteDatabase db;
-    static final int DATABASE_VERSION = 1;
+    static final int DATABASE_VERSION = 4;
     static final String DATABASE_NAME = "Workouts_Database";
 
     //Create Profile table
@@ -57,8 +57,8 @@ public class MyContentProvider extends ContentProvider {
             "CREATE TABLE " + TABLE_NAME + "( user_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                    " username TEXT," + " gender TEXT," + " weight DOUBLE);";*/
     static final String CREATE_PROFILE_TABLE =
-            "CREATE TABLE " + TABLE_NAME + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    KEY_NAME + " TEXT," + KEY_GENDER + " TEXT," + KEY_WEIGHT +  "DOUBLE);";
+            "CREATE TABLE " + TABLE_NAME + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    KEY_NAME + " TEXT, " + KEY_GENDER + " TEXT, " + KEY_WEIGHT +  " DOUBLE);";
 
     // create workouts table
     static final String TABLE_WORKOUTS = "Workouts";
@@ -109,16 +109,9 @@ public class MyContentProvider extends ContentProvider {
 
     private int getMatchedID(Uri uri){
         int matchedID = uriMatcher.match(uri);
-        switch (matchedID) {
-            case PROFILE:
-                if (!(matchedID == PROFILE || matchedID == PROFILE_ID)) {
+                if (!(matchedID == PROFILE || matchedID == PROFILE_ID || matchedID == WORKOUT || matchedID == WORKOUT_ID)) {
                     throw new IllegalArgumentException("Unsupported URI: " + uri);
                 }
-            case WORKOUT:
-                if (!(matchedID == WORKOUT || matchedID == WORKOUT_ID)) {
-                    throw new IllegalArgumentException("Unsupported URI: " + uri);
-                }
-        }
         return matchedID;
     }
 
@@ -145,13 +138,12 @@ public class MyContentProvider extends ContentProvider {
         int count = 0;
         String sel_str;
         int matchID = getMatchedID(uri);
-        switch (matchID){
-            case PROFILE:
-                sel_str = (matchID == PROFILE_ID)? getSelectionWithID(uri, selection): selection;
-                count = db.delete(TABLE_NAME, sel_str, selectionArgs);
-            case WORKOUT:
-                sel_str = (matchID == WORKOUT_ID)? getSelectionWithID(uri, selection): selection;
-                count = db.delete(TABLE_WORKOUTS, sel_str, selectionArgs);
+        if (matchID == PROFILE || matchID == PROFILE_ID) {
+            sel_str = (matchID == PROFILE_ID) ? getSelectionWithID(uri, selection) : selection;
+            count = db.delete(TABLE_NAME, sel_str, selectionArgs);
+        } else{
+            sel_str = (matchID == WORKOUT_ID) ? getSelectionWithID(uri, selection) : selection;
+             count = db.delete(TABLE_WORKOUTS, sel_str, selectionArgs);
         }
         notifyChange(uri);
         return  count;
@@ -173,7 +165,7 @@ public class MyContentProvider extends ContentProvider {
         Uri _uri = null;
         switch (uriMatcher.match(uri)){
             case PROFILE:
-                long _ID1 = db.insert(CREATE_PROFILE_TABLE, "", values);
+                long _ID1 = db.insert(TABLE_NAME, "", values);
                 //---if added successfully---
                 if (_ID1 > 0) {
                     _uri = ContentUris.withAppendedId(URI1, _ID1);
