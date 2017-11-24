@@ -26,6 +26,8 @@ import org.joda.time.DateTime;
 
 import java.text.DecimalFormat;
 import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by loan vo on 11/21/17.
@@ -52,8 +54,6 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     private int mCounterSteps = 0;
     final static double STEP_LENGTH = (0.67 + 0.762)/2; // average step length in meter
     private double workoutDistance;
-    private int rawSteps;
-    int tracker = 0;
     private Boolean record;
 
     //user profile
@@ -71,20 +71,22 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
 
     //format distance data type
     DecimalFormat df = new DecimalFormat("####.###");
-    ContentValues contentValues = new ContentValues();
+    ContentValues contentValues;
 
     Handler handler;
+    Timer timer;
+    int current = 0;
+    private int rawSteps = 0;
 
     IMyAidlInterface remoteService;
     RemoteConnection remoteConnection =null;
 
     private LinkedList<Integer> linkedList;
-    long start_timer = 0L;
-
+    int nsteps=0;
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.portrait_fragment, container, false);
-
+        contentValues = new ContentValues();
         handler = new Handler();
         distanceView = (TextView) view.findViewById(R.id.distance_view);
         durationView = (TextView) view.findViewById(R.id.duration_view);
@@ -122,6 +124,20 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
             }
         });
 
+        timer = new Timer();
+        linkedList = new LinkedList<Integer>();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(linkedList.size()<= 60) {
+                    linkedList.addLast(rawSteps);
+                }else{
+                    linkedList.removeFirst();
+                    linkedList.addLast(rawSteps);
+                }
+            }
+        }, 0,5000);
+
         // user profile
         profileButton = (Button) view.findViewById(R.id.profile_button);
         profileButton.setOnClickListener(new View.OnClickListener() {
@@ -131,8 +147,6 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
                 startActivity(intent);
             }
         });
-
-
         return view;
     }
 
@@ -142,9 +156,13 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         handler.postDelayed(runnable, 0);
 
        // contentValues.put(MyContentProvider.USER_ID, userID);
+       // Log.d("currentmmmm--------", getmCounterStepsSteps().toString());
+
+        contentValues.put(MyContentProvider.KEY_STEPS, rawSteps);
         contentValues.put(MyContentProvider.DATE, startDate.toString());
         contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
         getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
     }
 
     public void stopWorkout(){
@@ -152,6 +170,8 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         handler.removeCallbacks(runnable);
 
         endDate = new DateTime();
+        Log.d("cal  fr rawstep--------", Integer.toString(rawSteps));
+        Log.d("clist rawstep--------", linkedList.toString());
 
         //calculate burned calories
         calo_per_mile = CONST * weight;
@@ -161,6 +181,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         contentValues.put(MyContentProvider.KEY_TIME, timeBuff);
         contentValues.put(MyContentProvider.KEY_CALO, burned_calo);
         getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
     }
 
     public Runnable runnable = new Runnable() {
@@ -196,24 +217,47 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     //Sensor change detector
     @Override
     public void onSensorChanged(SensorEvent event) {
-        linkedList = new LinkedList<Integer>();
+
         if (record == true) {
-            if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-                contentValues.put(MyContentProvider.KEY_STEPS, (int) event.values[0]);
-                contentValues.put(MyContentProvider.DATE, new DateTime().toString());
-                getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
+            //Timer timer = new Timer();
 
-                start_timer = timeBuff - start_timer;
+            /*long start_timer = SystemClock.uptimeMillis();
+            handler.postDelayed(runnable, 0);
+            if((SystemClock.uptimeMillis() - start_timer) % 5 == 0) {
+                if(linkedList.size()<= 60) {
+                    linkedList.add((int) event.values[0]);
+                    Log.e("size===========", Integer.toString(linkedList.size()));
+                    Log.e("time===========", Long.toString((SystemClock.uptimeMillis() - start_timer)));
 
-                if(start_timer == 2000) {
-                    if(linkedList.size()<= 60) {
-                        linkedList.add((int) event.values[0]);
-                    }else{
-                        linkedList.removeFirst();
-                        linkedList.addLast((int) event.values[0]);
-                    }
+
+                }else{
+                    linkedList.removeFirst();
+                    linkedList.addLast((int) event.values[0]);
                 }
-                Log.e("list===========", linkedList.toString());
+            }*/
+            //handler.removeCallbacks(runnable);
+            if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+
+                /*timer.schedule(new TimerTask() {
+                    int current = (int) event.values[0];
+
+                    @Override
+                    public void run() {
+                            linkedList.addLast(current);
+                            Log.d("list===========", linkedList.toString());
+
+                            if(linkedList.size()<= 60) {
+                                linkedList.addLast(current);
+                            }else{
+                                linkedList.removeFirst();
+                                linkedList.addLast(current);
+                            }
+
+                    }
+                }, 0,5000);*/
+                rawSteps = (int) event.values[0];
+                Log.d("rawstep--------", Integer.toString(rawSteps));
+
                 if (mCounterSteps < 1) {
                     // initial value
                     mCounterSteps = (int) event.values[0];
@@ -225,9 +269,16 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
                 // calculate distance base on amounts of steps in km
                 workoutDistance = mSteps * STEP_LENGTH/1000;
                 distanceView.setText(df.format(workoutDistance));
+
             }
         }
     }
+
+    public LinkedList<Integer> getmCounterStepsSteps(){
+        Log.d("cal   rawstep--------", Integer.toString(rawSteps));
+       return linkedList;
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 

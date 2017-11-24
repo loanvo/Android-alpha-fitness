@@ -59,6 +59,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
          portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
 
+
         //Initialize the sericei
         remoteConnection = new RemoteConnection();
         Intent intent = new Intent();
@@ -152,6 +153,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     public void updateWorkout(){
         try{
             portraitFragment.startWorkout();
+            portraitFragment.getmCounterStepsSteps();
             throw new RemoteException("no Remote Service found");
         } catch (RemoteException e){
             e.printStackTrace();
