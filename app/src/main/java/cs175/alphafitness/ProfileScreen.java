@@ -15,6 +15,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.joda.time.DateTime;
+
 public class ProfileScreen extends AppCompatActivity implements View.OnClickListener{
     private TextView nameView;
     private TextView genderView;
@@ -36,7 +38,18 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
     private Uri profile;
     private String URL2;
     private Uri workouts;
-    private Intent intent;
+
+    private TextView week_distance_view;
+    private TextView week_time_view;
+    private TextView week_workouts_view;
+    private TextView week_calo_view;
+    private TextView distance_view;
+    private TextView time_view;
+    private TextView workouts_view;
+    private TextView calo_view;
+
+
+//    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +59,6 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         contentValues = new ContentValues();
         URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
- //       URL2 = "content://cs175.alphafitness/workout";
-  //      workouts = Uri.parse(URL2);
         nameView = (TextView) findViewById(R.id.name_view);
         genderView = (TextView) findViewById(R.id.gender_view);
         weightView = (TextView) findViewById(R.id.weight_view);
@@ -63,9 +74,39 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         nameView.setOnClickListener(this);
         genderView.setOnClickListener(this);
         weightView.setOnClickListener(this);
-    }
 
-    public void updateProfile(){
+        URL2 = "content://cs175.alphafitness/workout";
+        workouts = Uri.parse(URL2);
+        week_distance_view = (TextView) findViewById(R.id.week_workout_distance_view);
+        week_time_view = (TextView) findViewById(R.id.week_time_view);
+        week_workouts_view = (TextView) findViewById(R.id.week_workout_view);
+        week_calo_view = (TextView) findViewById(R.id.week_calo_view);
+        distance_view = (TextView) findViewById(R.id.workout_distance_view);
+        workouts_view = (TextView) findViewById(R.id.workout_view);
+        time_view = (TextView) findViewById(R.id.time_view);
+        calo_view = (TextView) findViewById(R.id.calo_view);
+
+        Double distance = 0.0;
+        long time = 0L;
+        int workout = 0;
+        DateTime date = null;
+        Double calo = 0.0;
+
+        Cursor curW = managedQuery(workouts, null, null, null, "id");
+        if(curW.moveToFirst()){
+            do {
+                distance += Double.parseDouble(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_DISTANCE)));
+                time += Long.parseLong(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_TIME)));
+                workout += Integer.parseInt(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_WORKOUTS)));
+                calo += Double.parseDouble(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_CALO)));
+            } while(curW.moveToNext());
+
+            distance_view.setText(Double.toString(distance));
+            time_view.setText(Long.toString(time));
+            calo_view.setText(Double.toString(calo));
+        }
+
+
 
     }
 
@@ -77,9 +118,6 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         weightEdit = (EditText) findViewById(R.id.edit_weight);
         saveButton = (Button) findViewById(R.id.save_button);
         Cursor cursor = managedQuery(profile, null, null, null, "user_id");
-        String n="";
-        String g = "";
-        String w = "";
         if(cursor.moveToFirst()) {
             nameEdit.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_NAME)));
             genderEdit.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_GENDER)));
@@ -130,8 +168,5 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                 finish();
             }
         });
-
-
-
     }
 }

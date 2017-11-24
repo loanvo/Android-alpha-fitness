@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.telecom.RemoteConnection;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 import org.joda.time.DateTime;
 
 import java.text.DecimalFormat;
+import java.util.LinkedList;
 
 /**
  * Created by loan vo on 11/21/17.
@@ -50,8 +52,9 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     private int mCounterSteps = 0;
     final static double STEP_LENGTH = (0.67 + 0.762)/2; // average step length in meter
     private double workoutDistance;
+    private int rawSteps;
+    int tracker = 0;
     private Boolean record;
-    WorkoutData data;
 
     //user profile
     Profile profile;
@@ -75,6 +78,9 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     IMyAidlInterface remoteService;
     RemoteConnection remoteConnection =null;
 
+    private LinkedList<Integer> linkedList;
+    long start_timer = 0L;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.portrait_fragment, container, false);
@@ -84,8 +90,6 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         durationView = (TextView) view.findViewById(R.id.duration_view);
 
         record = false;
-        data = new WorkoutData();
-
         //Initialize sensor
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
@@ -132,22 +136,18 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         return view;
     }
 
-    public WorkoutData startWorkout(){
+    public void startWorkout(){
         startDate = new DateTime();
         start = SystemClock.uptimeMillis();
         handler.postDelayed(runnable, 0);
 
-        contentValues.put(MyContentProvider.USER_ID, userID);
+       // contentValues.put(MyContentProvider.USER_ID, userID);
         contentValues.put(MyContentProvider.DATE, startDate.toString());
         contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-
-        Uri uri = getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
-        Toast.makeText(getActivity(), uri.toString(), Toast.LENGTH_LONG).show();
-
-        return data;
+        getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
     }
 
-    public WorkoutData stopWorkout(){
+    public void stopWorkout(){
         timeBuff += time;
         handler.removeCallbacks(runnable);
 
@@ -159,13 +159,8 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         burned_calo = mSteps * calo_per_step;
 
         contentValues.put(MyContentProvider.KEY_TIME, timeBuff);
-        contentValues.put(MyContentProvider.KEY_DISTANCE, workoutDistance);
         contentValues.put(MyContentProvider.KEY_CALO, burned_calo);
-
-        Uri uri = getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
-        Toast.makeText(getActivity(), uri.toString(), Toast.LENGTH_LONG).show();
-
-        return data;
+        getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
     }
 
     public Runnable runnable = new Runnable() {
@@ -201,12 +196,28 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     //Sensor change detector
     @Override
     public void onSensorChanged(SensorEvent event) {
+        linkedList = new LinkedList<Integer>();
         if (record == true) {
-
             if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+                contentValues.put(MyContentProvider.KEY_STEPS, (int) event.values[0]);
+                contentValues.put(MyContentProvider.DATE, new DateTime().toString());
+                getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+                start_timer = timeBuff - start_timer;
+
+                if(start_timer == 2000) {
+                    if(linkedList.size()<= 60) {
+                        linkedList.add((int) event.values[0]);
+                    }else{
+                        linkedList.removeFirst();
+                        linkedList.addLast((int) event.values[0]);
+                    }
+                }
+                Log.e("list===========", linkedList.toString());
                 if (mCounterSteps < 1) {
                     // initial value
                     mCounterSteps = (int) event.values[0];
+
                 }
                 // Calculate steps taken based on first counter value received.
                 mSteps = (int) event.values[0] - mCounterSteps;
@@ -221,11 +232,5 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
-
-    /*public void activateProfile(View view){
-        Intent intent = new Intent(this.getActivity(), ProfileScreen.class);
-        startActivity(intent);
-    }*/
-
 
 }
