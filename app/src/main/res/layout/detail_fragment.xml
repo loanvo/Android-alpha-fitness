@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="40dp">
     <TextView
         android:layout_width="200dp"
         android:layout_height="80dp"
@@ -11,12 +19,13 @@
         android:textAlignment="center"
         android:textColor="@android:color/black"
         android:background="@drawable/box"
-        android:layout_marginLeft="40dp"/>
-    <TableLayout
+        />
+    <LinearLayout
         android:layout_width="300dp"
         android:layout_height="80dp"
         android:background="@drawable/box">
-        <TableRow>
+
+
             <TextView
                 android:layout_width="50dp"
                 android:layout_height="80dp"
@@ -35,7 +44,7 @@
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="50sp" />
-            <TextView />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="25dp"
@@ -43,24 +52,25 @@
                 android:textColor="@android:color/black"
                 android:gravity="center"
                 />
-        </TableRow>
 
-
-    </TableLayout>
-    <TableLayout
+</LinearLayout>
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="80dp"
-        >
-        <TableRow
-            android:background="@drawable/box"
-            >
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+   <LinearLayout
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content"
+       android:background="@drawable/box"
+      >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
                 android:text="MAX"
                 android:textColor="@android:color/black"
-                android:layout_marginLeft="10dp"/>
+                android:layout_marginLeft="30dp"/>
             <TextView
                 android:layout_height="40dp"
                 android:layout_width="wrap_content"
@@ -70,16 +80,20 @@
                 android:textSize="22sp"
                 android:gravity="center"
                 android:layout_marginRight="5dp"
-                />
-        </TableRow>
-        <TableRow
-            android:background="@drawable/box">
+                android:layout_marginLeft="20dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:background="@drawable/box"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
                 android:text="MIN"
                 android:textColor="@android:color/black"
-                android:layout_marginLeft="10dp"/>
+                android:layout_marginLeft="30dp"
+                />
             <TextView
                 android:layout_height="40dp"
                 android:layout_width="wrap_content"
@@ -88,11 +102,25 @@
                 android:textColor="@android:color/black"
                 android:textSize="22sp"
                 android:gravity="center"
-                android:layout_marginRight="5dp"
+                android:layout_marginLeft="20dp"
                 />
+        </LinearLayout>
+    </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="210dp"
+        android:layout_marginTop="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="40dp">
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/linechart"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="5dp"/>
+    </LinearLayout>
 
-        </TableRow>
-    </TableLayout>
 
 
 </LinearLayout>

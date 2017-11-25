@@ -3,6 +3,7 @@ package cs175.alphafitness;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -53,17 +54,65 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
     PortraitFragment portraitFragment;
     private static final String TAG = "PortraitFragment";
+    private String URL1;
+    private Uri profile;
     private String URL2;
     private Uri workouts;
+    ContentValues contentValues;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_workout);
-
+        contentValues = new ContentValues();
+        URL1 = "content://cs175.alphafitness/profile";
+        profile = Uri.parse(URL1);
         URL2 = "content://cs175.alphafitness/workout";
         workouts = Uri.parse(URL2);
+        //Dummy data for profile
+        contentValues.put(MyContentProvider.KEY_NAME, "Tester");
+        contentValues.put(MyContentProvider.KEY_GENDER, "Female");
+        contentValues.put(MyContentProvider.KEY_WEIGHT, 100.0);
+        getContentResolver().insert(MyContentProvider.URI1, contentValues);
 
-            record = false;
+        //Dumies data for workouts
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.1);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 10);
+        contentValues.put(MyContentProvider.KEY_TIME, 5000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.5);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 15);
+        contentValues.put(MyContentProvider.KEY_TIME, 10000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.03);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 3);
+        contentValues.put(MyContentProvider.KEY_TIME, 500);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 1.0);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 200);
+        contentValues.put(MyContentProvider.KEY_TIME, 50000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.1);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 10);
+        contentValues.put(MyContentProvider.KEY_TIME, 5000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.8);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO,50 );
+        contentValues.put(MyContentProvider.KEY_TIME, 30000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+
+        record = false;
 
             portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
             if (portraitFragment == null) {

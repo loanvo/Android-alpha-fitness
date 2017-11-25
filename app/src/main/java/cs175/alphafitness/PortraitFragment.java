@@ -104,6 +104,12 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
    //     if(c.moveToFirst()){
      //       status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
        // }
+        URL1 = "content://cs175.alphafitness/profile";
+        profile = Uri.parse(URL1);
+        Cursor cursor = getActivity().managedQuery(profile, null, null, null, "user_id");
+        if(cursor.moveToFirst()) {
+            weight = Double.parseDouble(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_WEIGHT)));
+        }
             contentValues = new ContentValues();
             handler = new Handler();
             distanceView = (TextView) view.findViewById(R.id.distance_view);
@@ -179,6 +185,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
 
         contentValues.put(MyContentProvider.USER_ID, userid);
         contentValues.put(MyContentProvider.DATE, startDate.toString());
+
         contentValues.put(MyContentProvider.STATUS, 1);
         contentValues.put(MyContentProvider.KEY_STEPS, rawSteps);
         getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
@@ -207,17 +214,13 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         Log.d("clist rawstep--------", linkedList.toString());
     //    Log.d("list call======--------", getmCounterStepsSteps().toString());
 
-        URL1 = "content://cs175.alphafitness/profile";
-        profile = Uri.parse(URL1);
 
-        Cursor cursor = getActivity().managedQuery(profile, null, null, null, "user_id");
-        if(cursor.moveToFirst()) {
-           weight = Double.parseDouble(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_WEIGHT)));
-        }
         //calculate burned calories
-        calo_per_mile = CONST * weight;
+        burned_calo = calculateCaloBurned(mSteps);
+        /*calo_per_mile = CONST * weight;
         calo_per_step = calo_per_mile / STEPS_PER_MILE;
-        burned_calo = mSteps * calo_per_step;
+        burned_calo = mSteps * calo_per_step;*/
+
 
         //Log.d("start---------", startDate.toString());
         contentValues.put(MyContentProvider.USER_ID, userid);
@@ -229,6 +232,16 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         contentValues.put(MyContentProvider.KEY_CALO, burned_calo);
         getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
 
+    }
+    public Double getWeight(){
+        return weight;
+    }
+    public Double calculateCaloBurned(int steps){
+        Double calo;
+        calo_per_mile = CONST * getWeight();
+        calo_per_step = calo_per_mile / STEPS_PER_MILE;
+        calo = steps * calo_per_step;
+        return calo;
     }
 
     public Runnable runnable = new Runnable() {
@@ -293,7 +306,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         }
     }
 
-    @Override
+/*    @Override
     public void onDestroy() {
         super.onDestroy();
         Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
@@ -310,7 +323,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
             }
         }
 
-    }
+    }*/
 
     //Sensor change detector
     @Override
