@@ -27,8 +27,8 @@ public class DetailFragment extends Fragment{
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.detail_fragment, container, false);
         linkedList = new LinkedList<>();
-        portraitFragment = new PortraitFragment();
-        linkedList = portraitFragment.getmCounterStepsSteps();
+      portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
+     linkedList = portraitFragment.getmCounterStepsSteps();
 //        portraitFragment.startWorkout();
         /*timer = new Timer();
         timer.schedule(new TimerTask() {

@@ -111,18 +111,12 @@
 
                 <TextView
                     android:id="@+id/week_workout_distance_view"
-                    android:layout_width="200dp"
-                    android:layout_gravity="end"
+                    android:layout_width="wrap_content"
                     android:paddingTop="13dp"
                     android:textAlignment="textEnd"
                     android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="km"
-                    android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:layout_marginRight="5dp"/>
 
             </TableRow>
 
@@ -138,18 +132,13 @@
 
                 <TextView
                     android:id="@+id/week_time_view"
-                    android:layout_width="200dp"
+                    android:layout_width="wrap_content"
                     android:layout_gravity="end"
                     android:paddingTop="13dp"
                     android:textAlignment="textEnd"
                     android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="sec"
-                    android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:layout_marginRight="10dp"/>
 
             </TableRow>
 
@@ -165,18 +154,13 @@
 
                 <TextView
                     android:id="@+id/week_workout_view"
-                    android:layout_width="200dp"
+                    android:layout_width="wrap_content"
                     android:layout_gravity="end"
                     android:paddingTop="13dp"
                     android:textAlignment="textEnd"
                     android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="times"
-                    android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:layout_marginRight="5dp"/>
 
             </TableRow>
 
@@ -192,18 +176,13 @@
 
                 <TextView
                     android:id="@+id/week_calo_view"
-                    android:layout_width="100dp"
+                    android:layout_width="wrap_content"
                     android:layout_gravity="end"
                     android:paddingTop="13dp"
                     android:textAlignment="textEnd"
                     android:textSize="17sp"
                     android:textColor="@android:color/black"/>
 
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="Cal"
-                    android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
 
             </TableRow>
 
@@ -238,18 +217,13 @@
 
                 <TextView
                     android:id="@+id/workout_distance_view"
-                    android:layout_width="200dp"
+                    android:layout_width="wrap_content"
                     android:layout_gravity="end"
                     android:paddingTop="13dp"
                     android:textAlignment="textEnd"
                     android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="km"
-                    android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:layout_marginRight="5dp"/>
 
             </TableRow>
 
@@ -265,18 +239,13 @@
 
                 <TextView
                     android:id="@+id/time_view"
-                    android:layout_width="200dp"
+                    android:layout_width="wrap_content"
                     android:layout_gravity="end"
                     android:paddingTop="13dp"
                     android:textAlignment="textEnd"
                     android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="sec"
-                    android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:layout_marginRight="5dp"/>
 
             </TableRow>
 
@@ -292,18 +261,13 @@
 
                 <TextView
                     android:id="@+id/workout_view"
-                    android:layout_width="200dp"
+                    android:layout_width="wrap_content"
                     android:layout_gravity="end"
                     android:paddingTop="13dp"
                     android:textAlignment="textEnd"
                     android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
-
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="times"
-                    android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:layout_marginRight="5dp"/>
 
             </TableRow>
 
@@ -319,18 +283,14 @@
 
                 <TextView
                     android:id="@+id/calo_view"
-                    android:layout_width="100dp"
+                    android:layout_width="wrap_content"
                     android:layout_gravity="end"
                     android:paddingTop="13dp"
                     android:textAlignment="textEnd"
                     android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
+                    android:textColor="@android:color/black"
+                    android:layout_marginRight="5dp"/>
 
-                <TextView
-                    android:layout_marginLeft="5dp"
-                    android:text="Cal"
-                    android:textSize="17sp"
-                    android:textColor="@android:color/black"/>
 
             </TableRow>
 

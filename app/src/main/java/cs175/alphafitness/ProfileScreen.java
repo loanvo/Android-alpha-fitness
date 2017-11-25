@@ -15,7 +15,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.joda.time.DateTime;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 
 public class ProfileScreen extends AppCompatActivity implements View.OnClickListener{
     private TextView nameView;
@@ -48,6 +58,18 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
     private TextView workouts_view;
     private TextView calo_view;
 
+    private Double distance = 0.0;
+    long time = 0L;
+    int workout = 0;
+   // DateTime date = null;
+    Double calo = 0.0;
+    List<Date> dateList;
+
+    String selectName= "";
+    int id = 0;
+    private Date mdate= null;
+
+    List<Integer> weekdayList;
 
 //    private Intent intent;
 
@@ -56,9 +78,14 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_screen);
         mprofile = new Profile();
+
         contentValues = new ContentValues();
         URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
+
+        dateList = new ArrayList<>();
+        weekdayList = new ArrayList<>();
+
         nameView = (TextView) findViewById(R.id.name_view);
         genderView = (TextView) findViewById(R.id.gender_view);
         weightView = (TextView) findViewById(R.id.weight_view);
@@ -67,6 +94,7 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         if(cursor == null){
             setContentView(R.layout.new_profile_layout);
         }else if(cursor.moveToFirst()){
+
             nameView.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_NAME)));
             genderView.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_GENDER)));
             weightView.setText(Double.toString(cursor.getDouble(cursor.getColumnIndex(MyContentProvider.KEY_WEIGHT))));
@@ -86,28 +114,91 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         time_view = (TextView) findViewById(R.id.time_view);
         calo_view = (TextView) findViewById(R.id.calo_view);
 
-        Double distance = 0.0;
-        long time = 0L;
-        int workout = 0;
-        DateTime date = null;
-        Double calo = 0.0;
+        Cursor c = managedQuery(profile, null, null, null, "user_id");
+        if(c.moveToFirst()){
+            selectName = c.getString(c.getColumnIndex(MyContentProvider.KEY_NAME));
+            id = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.KEY_ID)));
+            }
+        Cursor curW = managedQuery(workouts, null, MyContentProvider.USER_ID + "=?", new String []{Integer.toString(id)}, "id");
+        String timeString = "";
+        
+            if (cursor != null && curW.moveToFirst()) {
+                do {
+                    //get colunms from workouts table
+                    String str1 = curW.getString(curW.getColumnIndex(MyContentProvider.KEY_DISTANCE));
+                    String str2 = curW.getString(curW.getColumnIndex(MyContentProvider.KEY_TIME));
+                    String str4 = curW.getString(curW.getColumnIndex(MyContentProvider.KEY_WORKOUTS));
+                    String str5 = curW.getString(curW.getColumnIndex(MyContentProvider.KEY_CALO));
+                    String str3 = curW.getString(curW.getColumnIndex(MyContentProvider.DATE));
+                    if(str1 == null || str1.equalsIgnoreCase("null") || str1.isEmpty()){
+                        distance += 0.0;
+                    }else {
+                        //distance += Double.parseDouble(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_DISTANCE)));
+                        distance += Double.parseDouble(str1);
+                    }
+                    if(str2 == null || str2.equalsIgnoreCase("null" ) || str2.isEmpty()){
+                        time += 0L;
+                    }else {
+                        timeString = curW.getString(curW.getColumnIndex(MyContentProvider.KEY_TIME));
+                        time += (Time.valueOf(timeString)).getTime();
+                    }
 
-        Cursor curW = managedQuery(workouts, null, null, null, "id");
-        if(curW.moveToFirst()){
-            do {
-                distance += Double.parseDouble(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_DISTANCE)));
-                time += Long.parseLong(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_TIME)));
-                workout += Integer.parseInt(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_WORKOUTS)));
-                calo += Double.parseDouble(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_CALO)));
-            } while(curW.moveToNext());
+                    if(str4 == null || str4.equalsIgnoreCase("null") || str4.isEmpty()){
+                        workout  += 0;
+                    }else {
+                        workout += Integer.parseInt(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_WORKOUTS)));
+                    }
+                    if(str5 == null || str5.equalsIgnoreCase("null") || str5.isEmpty()){
+                        calo  += 0.0;
+                    }else {
+                        calo += Double.parseDouble(curW.getString(curW.getColumnIndex(MyContentProvider.KEY_CALO)));
+                    }
+                    if(str3 == null || str3.equalsIgnoreCase("null") || str3.isEmpty()){
+                        dateList.add(null);
+                    }else {
+                        dateList.add(formatDate(curW.getString(curW.getColumnIndex(MyContentProvider.DATE))));
+                    }
+                    //Log.d("date=============",java.sql.Date.valueOf(curW.getString(curW.getColumnIndex(MyContentProvider.DATE))).toString());
+                    //DateFormat sdf = new SimpleDateFormat("hh:mm:ss");
+                    //Date date = sdf.parse(timeString);
+                } while (curW.moveToNext());
 
-            distance_view.setText(Double.toString(distance));
-            time_view.setText(Long.toString(time));
-            calo_view.setText(Double.toString(calo));
-        }
+                //implement all time workout view
+                // format time view
+                int seconds = (int) (time / 1000);
+                int minutes = seconds / 60;
+                int hours = minutes/60;
+                int day = hours/24;
+                seconds = seconds % 60;
+                minutes = minutes % 60;
+                hours = hours % 24;
+                time = (int) (time % 1000);
+                time_view.setText("" + String.format("%02d", day) + " day "
+                        +  String.format("%02d", hours) + " hr "
+                        + String.format("%02d", minutes) + " min "
+                        + String.format("%02d", seconds) + " sec");
+                distance_view.setText(Double.toString(distance) + " km");
+                workouts_view.setText(Integer.toString(workout) + " times");
+                calo_view.setText(Double.toString(calo) + " cal");
 
+                //Implement weekly workout view
+                for(int i = 0; i < dateList.size(); i++){
+                    java.util.Calendar cal = Calendar.getInstance();
+                    cal.setTime(dateList.get(i));
+                    weekdayList.add(cal.get(java.util.Calendar.DAY_OF_WEEK));
+                }
 
+            }
+    }
 
+   public Date formatDate(String date){
+       SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+       try {
+            mdate = format.parse(date);
+       }catch (java.text.ParseException e){
+           e.printStackTrace();
+       }
+       return mdate;
     }
 
     @Override
@@ -145,6 +236,16 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                 contentValues.put(MyContentProvider.KEY_GENDER, gender);
                 contentValues.put(MyContentProvider.KEY_WEIGHT, weight);
                 getContentResolver().insert(MyContentProvider.URI1, contentValues);
+
+                Cursor c = managedQuery(profile, null, null, null, "user_id");
+                int userid = 0;
+                if(c.moveToFirst()){
+                    selectName = c.getString(c.getColumnIndex(MyContentProvider.KEY_NAME));
+                    userid = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.KEY_ID)));
+                }
+                //insert userID into workouts table
+                contentValues.put(MyContentProvider.USER_ID, userid);
+                getContentResolver().insert(MyContentProvider.URI2, contentValues);
 
                 setContentView(R.layout.activity_profile_screen);
                 nameView = (TextView) findViewById(R.id.name_view);

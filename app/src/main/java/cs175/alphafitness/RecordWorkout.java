@@ -50,6 +50,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     RemoteConnection remoteConnection =null;
 
     PortraitFragment portraitFragment;
+    private static final String TAG = "PortraitFragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +58,13 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
         setContentView(R.layout.activity_record_workout);
         record = false;
 
-         portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-
+        portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
+        if(portraitFragment == null){
+            portraitFragment = new PortraitFragment();
+            getFragmentManager().beginTransaction().add(portraitFragment, TAG);
+            portraitFragment.getmCounterStepsSteps();
+            portraitFragment.startWorkout();
+        }
 
         //Initialize the sericei
         remoteConnection = new RemoteConnection();

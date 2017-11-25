@@ -63,20 +63,13 @@
                 android:layout_marginLeft="10dp"/>
             <TextView
                 android:layout_height="40dp"
-                android:layout_width="50dp"
+                android:layout_width="wrap_content"
                 android:id="@+id/max_view"
                 android:text="1:57"
                 android:textColor="@android:color/black"
                 android:textSize="22sp"
                 android:gravity="center"
-                />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:text="min/km"
-                android:textColor="@android:color/black"
-                android:gravity="center"
-                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 />
         </TableRow>
         <TableRow
@@ -89,21 +82,15 @@
                 android:layout_marginLeft="10dp"/>
             <TextView
                 android:layout_height="40dp"
-                android:layout_width="110dp"
+                android:layout_width="wrap_content"
                 android:id="@+id/min_view"
                 android:text="1:57"
                 android:textColor="@android:color/black"
                 android:textSize="22sp"
                 android:gravity="center"
+                android:layout_marginRight="5dp"
                 />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:text="min/km"
-                android:textColor="@android:color/black"
-                android:gravity="center"
-                android:layout_marginLeft="5dp"
-                />
+
         </TableRow>
     </TableLayout>
 
