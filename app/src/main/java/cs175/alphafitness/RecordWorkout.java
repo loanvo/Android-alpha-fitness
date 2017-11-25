@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -45,89 +46,104 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
     Boolean record;
     private double mdistance;
+    int status =0;
 
     IMyAidlInterface remoteService;
     RemoteConnection remoteConnection =null;
 
     PortraitFragment portraitFragment;
     private static final String TAG = "PortraitFragment";
-
+    private String URL2;
+    private Uri workouts;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_workout);
-        record = false;
 
-        portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-        if(portraitFragment == null){
-            portraitFragment = new PortraitFragment();
-            getFragmentManager().beginTransaction().add(portraitFragment, TAG);
-            portraitFragment.getmCounterStepsSteps();
-            portraitFragment.startWorkout();
+        URL2 = "content://cs175.alphafitness/workout";
+        workouts = Uri.parse(URL2);
+        Cursor c = managedQuery(workouts, null, null, null, "id");
+        if(c.moveToFirst()){
+            status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
         }
-
-        //Initialize the sericei
-        remoteConnection = new RemoteConnection();
-        Intent intent = new Intent();
-        intent.setClassName("cs175.alphafitness", cs175.alphafitness.MyService.class.getName());
-        if(!bindService(intent, remoteConnection, BIND_AUTO_CREATE)){
-            Toast.makeText(this, "Fail to bind the remote service ", Toast.LENGTH_LONG).show();
+        // if workout has not been started
+        if(status == 0) {
         }
+            record = false;
 
-        //Initialize map
-        FragmentManager manager = getFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
-        transaction.show(fragment);
-        transaction.commit();
-        fragment.getMapAsync(this);
+            portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
+            if (portraitFragment == null) {
+                portraitFragment = new PortraitFragment();
+                getFragmentManager().beginTransaction().add(portraitFragment, TAG);
+                portraitFragment.getmCounterStepsSteps();
+                portraitFragment.startWorkout();
+            }
 
-        if ( Build.VERSION.SDK_INT >= 23 &&
-                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission( this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return  ;
-        }
+            //Initialize the sericei
+            remoteConnection = new RemoteConnection();
+            Intent intent = new Intent();
+            intent.setClassName("cs175.alphafitness", cs175.alphafitness.MyService.class.getName());
+            if (!bindService(intent, remoteConnection, BIND_AUTO_CREATE)) {
+                Toast.makeText(this, "Fail to bind the remote service ", Toast.LENGTH_LONG).show();
+            }
 
-        // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            //Initialize map
+            FragmentManager manager = getFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
+            transaction.show(fragment);
+            transaction.commit();
+            fragment.getMapAsync(this);
 
-        // Define a listener that responds to location updates
-        LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                double newLatitude = 0;
-                double newLongtitude = 0;
-                newLatitude = location.getLatitude();
-                newLongtitude = location.getLongitude();
+            if (Build.VERSION.SDK_INT >= 23 &&
+                    ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            // Acquire a reference to the system Location Manager
+            LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+            // Define a listener that responds to location updates
+            LocationListener locationListener = new LocationListener() {
+                public void onLocationChanged(Location location) {
+                    double newLatitude = 0;
+                    double newLongtitude = 0;
+                    newLatitude = location.getLatitude();
+                    newLongtitude = location.getLongitude();
 
 
-                LatLng here = new LatLng(newLatitude, newLongtitude);
+                    LatLng here = new LatLng(newLatitude, newLongtitude);
 
-                if (mMap != null) {
-                    if( mLocation == null) {
-                        mLocation = location;
-                        mMap.addMarker(new MarkerOptions().position(here).title("User"));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                    }else{
-                        mdistance = mLocation.distanceTo(location);
-                        if(mdistance >= 1){
-                            distance += (mdistance / 1000);
-                            //distanceView.setText(df.format(distance));
+                    if (mMap != null) {
+                        if (mLocation == null) {
+                            mLocation = location;
                             mMap.addMarker(new MarkerOptions().position(here).title("User"));
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                        } else {
+                            mdistance = mLocation.distanceTo(location);
+                            if (mdistance >= 1) {
+                                distance += (mdistance / 1000);
+                                //distanceView.setText(df.format(distance));
+                                mMap.addMarker(new MarkerOptions().position(here).title("User"));
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                            }
                         }
                     }
                 }
-            }
 
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
 
-            public void onProviderEnabled(String provider) {}
+                public void onProviderEnabled(String provider) {
+                }
 
-            public void onProviderDisabled(String provider) {}
-        };
-        // Register the listener with the Location Manager to receive location updates
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-
+                public void onProviderDisabled(String provider) {
+                }
+            };
+            // Register the listener with the Location Manager to receive location updates
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        
     }
 
     @Override

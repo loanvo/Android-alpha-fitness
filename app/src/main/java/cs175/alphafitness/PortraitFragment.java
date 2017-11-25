@@ -84,6 +84,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     private String URL2;
     private Uri workouts;
     int userid =0;
+    int status = 0;
 
     IMyAidlInterface remoteService;
     RemoteConnection remoteConnection =null;
@@ -94,78 +95,90 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.portrait_fragment, container, false);
         setRetainInstance(true);
-        URL1 = "content://cs175.alphafitness/profile";
-        profile = Uri.parse(URL1);
-        URL2 = "content://cs175.alphafitness/workout";
-        workouts = Uri.parse(URL2);
-        contentValues = new ContentValues();
-        handler = new Handler();
-        distanceView = (TextView) view.findViewById(R.id.distance_view);
-        durationView = (TextView) view.findViewById(R.id.duration_view);
+        // Get user id from profile table
 
-        record = false;
-        //Initialize sensor
-        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+            URL1 = "content://cs175.alphafitness/profile";
+            profile = Uri.parse(URL1);
+            URL2 = "content://cs175.alphafitness/workout";
+            workouts = Uri.parse(URL2);
+            contentValues = new ContentValues();
+            handler = new Handler();
+            distanceView = (TextView) view.findViewById(R.id.distance_view);
+            durationView = (TextView) view.findViewById(R.id.duration_view);
 
+            record = false;
+            //Initialize sensor
+            sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+            mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
-        // implement action for workout button
-        button = (Button) view.findViewById(R.id.start_button);
-        button.setTag(1);
-        button.setText("Start Workout");
-        button.setBackgroundColor(Color.GREEN);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final int status = (Integer) v.getTag();
-                if (status == 1) {
-                    record = true;
-                    startWorkout();
-                    button.setText("Stop Workout");
-                    button.setBackgroundColor(Color.RED);
-                    button.setTag(0);
+            // Get user id from profile table
+            Cursor pc = getActivity().managedQuery(profile, null, null, null, "user_id");
+            if (pc.moveToFirst()) {
+                userid = Integer.parseInt(pc.getString(pc.getColumnIndex(MyContentProvider.KEY_ID)));
+            }
+            // implement action for workout button
+            button = (Button) view.findViewById(R.id.start_button);
+            button.setTag(1);
+            button.setText("Start Workout");
+            button.setBackgroundColor(Color.GREEN);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final int status = (Integer) v.getTag();
+                    if (status == 1) {
+                        record = true;
+                        startWorkout();
+                        button.setText("Stop Workout");
+                        button.setBackgroundColor(Color.RED);
+                        button.setTag(0);
 
-                } else {
-                    record = false;
-                    stopWorkout();
-                    button.setText("Start Workout");
-                    button.setBackgroundColor(Color.GREEN);
-                    button.setTag(1);
+                    } else {
+                        record = false;
+                        stopWorkout();
+                        button.setText("Start Workout");
+                        button.setBackgroundColor(Color.GREEN);
+                        button.setTag(1);
+                    }
+
                 }
+            });
 
-            }
-        });
-
-        timer = new Timer();
-        linkedList = new LinkedList<Integer>();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if(linkedList.size()<= 60) {
-                    linkedList.addLast(rawSteps);
-                }else{
-                    linkedList.removeFirst();
-                    linkedList.addLast(rawSteps);
+            timer = new Timer();
+            linkedList = new LinkedList<Integer>();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (linkedList.size() <= 60) {
+                        linkedList.addLast(rawSteps);
+                    } else {
+                        linkedList.removeFirst();
+                        linkedList.addLast(rawSteps);
+                    }
                 }
-            }
-        }, 0,5000);
+            }, 0, 5000);
 
-        // user profile
-        profileButton = (Button) view.findViewById(R.id.profile_button);
-        profileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), ProfileScreen.class);
-                startActivity(intent);
-            }
-        });
-        return view;
+            // user profile
+            profileButton = (Button) view.findViewById(R.id.profile_button);
+            profileButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(), ProfileScreen.class);
+                    startActivity(intent);
+                }
+            });
+            return view;
     }
 
     public void startWorkout(){
         startDate = new Date();
         start = SystemClock.uptimeMillis();
         handler.postDelayed(runnable, 0);
+
+        contentValues.put(MyContentProvider.USER_ID, userid);
+        contentValues.put(MyContentProvider.DATE, startDate.toString());
+        contentValues.put(MyContentProvider.STATUS, 1);
+        contentValues.put(MyContentProvider.KEY_STEPS, rawSteps);
+        getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
 
        // contentValues.put(MyContentProvider.USER_ID, userID);
        // Log.d("currentmmmm--------", getmCounterStepsSteps().toString());
@@ -203,17 +216,13 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         calo_per_step = calo_per_mile / STEPS_PER_MILE;
         burned_calo = mSteps * calo_per_step;
 
-        // Get user id from profile table
-        Cursor c = getActivity().managedQuery(profile, null, null, null, "user_id");
-        if(c.moveToFirst()){
-            userid = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.KEY_ID)));
-        }
         Log.d("start---------", startDate.toString());
         contentValues.put(MyContentProvider.USER_ID, userid);
-        contentValues.put(MyContentProvider.DATE, startDate.toString());
+        contentValues.put(MyContentProvider.DATE, endDate.toString());
         contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
         contentValues.put(MyContentProvider.KEY_DISTANCE,  distanceView.getText().toString());
         contentValues.put(MyContentProvider.KEY_TIME, durationView.getText().toString());
+        contentValues.put(MyContentProvider.STATUS, 0);
         contentValues.put(MyContentProvider.KEY_CALO, burned_calo);
         getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
 
@@ -273,7 +282,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
             //handler.removeCallbacks(runnable);
             if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
                 rawSteps = (int) event.values[0];
-                contentValues.put(MyContentProvider.KEY_STEPS, rawSteps);
+                //contentValues.put(MyContentProvider.KEY_STEPS, rawSteps);
    //             getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
 
                 /*timer.schedule(new TimerTask() {

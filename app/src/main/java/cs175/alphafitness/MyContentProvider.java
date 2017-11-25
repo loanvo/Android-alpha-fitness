@@ -44,7 +44,7 @@ public class MyContentProvider extends ContentProvider {
     private static HashMap <String, String> WORKOUT_PROJECTION_MAP;
 
     private SQLiteDatabase db;
-    static final int DATABASE_VERSION = 5;
+    static final int DATABASE_VERSION = 6;
     static final String DATABASE_NAME = "Workouts_Database";
 
     //Create Profile table
@@ -67,10 +67,11 @@ public class MyContentProvider extends ContentProvider {
     static final String KEY_STEPS = "step_count";
     static final String KEY_CALO = "calo";
     static final String DATE = "date";
+    static final String STATUS = "status";
 
     static final String CREATE_WORKOUT_TABLE = "CREATE TABLE " + TABLE_WORKOUTS + "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
             USER_ID + " INTEGER, " + KEY_DISTANCE + " DOUBLE," + KEY_TIME + " TEXT, " + KEY_WORKOUTS +
-            " INT, " + DATE + " DATE, "+ KEY_CALO +  " DOUBLE, " +KEY_STEPS +" INT, " +" FOREIGN KEY (" + USER_ID + ") REFERENCES "+TABLE_NAME+"("+KEY_ID+"));";
+            " INT, " + DATE + " DATE, "+ KEY_CALO +  " DOUBLE, " +KEY_STEPS +" INT, " + STATUS + " INTEGER DEFAULT 0," +" FOREIGN KEY (" + USER_ID + ") REFERENCES "+TABLE_NAME+"("+KEY_ID+"));";
 
     public MyContentProvider() {
     }
