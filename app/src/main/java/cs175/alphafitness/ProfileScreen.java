@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.sql.Time;
@@ -58,20 +59,23 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
     private TextView workouts_view;
     private TextView calo_view;
 
-    private Double distance = 0.0;
+    Double distance = 0.0;
     long time = 0L;
     int workout = 0;
-   // DateTime date = null;
     Double calo = 0.0;
     List<Date> dateList;
+    Double weekly_distance = 0.0;
+    long weekly_time = 0L;
+    int weekly_workout = 0;
+    Double weekly_calo = 0.0;
 
     String selectName= "";
     int id = 0;
     private Date mdate= null;
 
     List<Integer> weekdayList;
-
-//    private Intent intent;
+    String timeView;
+    DecimalFormat df = new DecimalFormat("####.###");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +125,6 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
             }
         Cursor curW = managedQuery(workouts, null, MyContentProvider.USER_ID + "=?", new String []{Integer.toString(id)}, "id");
         String timeString = "";
-        
             if (cursor != null && curW.moveToFirst()) {
                 do {
                     //get colunms from workouts table
@@ -158,37 +161,41 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                     }else {
                         dateList.add(formatDate(curW.getString(curW.getColumnIndex(MyContentProvider.DATE))));
                     }
-                    //Log.d("date=============",java.sql.Date.valueOf(curW.getString(curW.getColumnIndex(MyContentProvider.DATE))).toString());
-                    //DateFormat sdf = new SimpleDateFormat("hh:mm:ss");
-                    //Date date = sdf.parse(timeString);
+
                 } while (curW.moveToNext());
 
-                //implement all time workout view
-                // format time view
-                int seconds = (int) (time / 1000);
-                int minutes = seconds / 60;
-                int hours = minutes/60;
-                int day = hours/24;
-                seconds = seconds % 60;
-                minutes = minutes % 60;
-                hours = hours % 24;
-                time = (int) (time % 1000);
-                time_view.setText("" + String.format("%02d", day) + " day "
-                        +  String.format("%02d", hours) + " hr "
-                        + String.format("%02d", minutes) + " min "
-                        + String.format("%02d", seconds) + " sec");
-                distance_view.setText(Double.toString(distance) + " km");
+                time_view.setText(formatTimeView(time));
+                distance_view.setText((df.format(distance)) + " km");
                 workouts_view.setText(Integer.toString(workout) + " times");
-                calo_view.setText(Double.toString(calo) + " cal");
+                calo_view.setText(df.format(calo) + " cal");
 
-                //Implement weekly workout view
-                for(int i = 0; i < dateList.size(); i++){
-                    java.util.Calendar cal = Calendar.getInstance();
-                    cal.setTime(dateList.get(i));
-                    weekdayList.add(cal.get(java.util.Calendar.DAY_OF_WEEK));
-                }
+                // calculate avg/weekly workouts
+                weekly_distance = (distance/dateList.size())*7;
+                weekly_time = (time/dateList.size())*7;
+                weekly_calo = (calo/dateList.size())*7;
+                weekly_workout = (workout/dateList.size())*7;
 
+                // set average weekly workouts view
+                week_distance_view.setText(df.format(weekly_distance) + " km");
+                week_time_view.setText(formatTimeView(weekly_time));
+                week_workouts_view.setText(Integer.toString(weekly_workout) + " times");
+                week_calo_view.setText(df.format(weekly_calo) + " cal");
             }
+    }
+
+    public String formatTimeView(long millis){
+        int seconds = (int) (millis / 1000);
+        int minutes = seconds / 60;
+        int hours = minutes/60;
+        int day = hours/24;
+        seconds = seconds % 60;
+        minutes = minutes % 60;
+        hours = hours % 24;
+        timeView = "" + String.format("%02d", day) + " day "
+                +  String.format("%02d", hours) + " hr "
+                + String.format("%02d", minutes) + " min "
+                + String.format("%02d", seconds) + " sec";
+        return timeView;
     }
 
    public Date formatDate(String date){
