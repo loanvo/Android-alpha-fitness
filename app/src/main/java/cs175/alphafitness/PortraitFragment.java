@@ -56,7 +56,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     private int mCounterSteps = 0;
     final static double STEP_LENGTH = (0.67 + 0.762)/2; // average step length in meter
     private double workoutDistance;
-    private Boolean record;
+    private Boolean record = false;
 
     //user profile
     //Profile profile;
@@ -95,18 +95,21 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.portrait_fragment, container, false);
         setRetainInstance(true);
-        // Get user id from profile table
 
-            URL1 = "content://cs175.alphafitness/profile";
+        URL1 = "content://cs175.alphafitness/profile";
             profile = Uri.parse(URL1);
             URL2 = "content://cs175.alphafitness/workout";
             workouts = Uri.parse(URL2);
+ //       Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
+   //     if(c.moveToFirst()){
+     //       status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
+       // }
             contentValues = new ContentValues();
             handler = new Handler();
             distanceView = (TextView) view.findViewById(R.id.distance_view);
             durationView = (TextView) view.findViewById(R.id.duration_view);
 
-            record = false;
+     //       record = false;
             //Initialize sensor
             sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
             mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
@@ -125,7 +128,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
                 @Override
                 public void onClick(View v) {
                     final int status = (Integer) v.getTag();
-                    if (status == 1) {
+                    if (record==false) {
                         record = true;
                         startWorkout();
                         button.setText("Stop Workout");
@@ -200,9 +203,9 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         handler.removeCallbacks(runnable);
 
         endDate = new Date();
-        Log.d("cal  fr rawstep--------", Integer.toString(rawSteps));
+       // Log.d("cal  fr rawstep--------", Integer.toString(rawSteps));
         Log.d("clist rawstep--------", linkedList.toString());
-        Log.d("list call======--------", getmCounterStepsSteps().toString());
+    //    Log.d("list call======--------", getmCounterStepsSteps().toString());
 
         URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
@@ -216,7 +219,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         calo_per_step = calo_per_mile / STEPS_PER_MILE;
         burned_calo = mSteps * calo_per_step;
 
-        Log.d("start---------", startDate.toString());
+        //Log.d("start---------", startDate.toString());
         contentValues.put(MyContentProvider.USER_ID, userid);
         contentValues.put(MyContentProvider.DATE, endDate.toString());
         contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
@@ -249,13 +252,64 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
 
     @Override
     public void onResume() {
+
         super.onResume();
-        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        if(countSensor != null){
-            sensorManager.registerListener(this, countSensor, sensorManager.SENSOR_DELAY_UI);
-        } else {
-            Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
+         Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
+        if(c.moveToFirst()){
+            status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
         }
+        // only register the listener if start button has not been click
+        if(record==true) {
+            button.setText("Stop Workout");
+            button.setBackgroundColor(Color.RED);
+            Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+            if(countSensor != null){
+                sensorManager.registerListener(this, countSensor, sensorManager.SENSOR_DELAY_UI);
+            } else {
+                Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
+        if(c.moveToFirst()){
+            status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
+        }
+        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+
+        if(record==false){
+            button.setText("Start Workout");
+            button.setBackgroundColor(Color.GREEN);
+            if(countSensor != null) {
+                sensorManager.unregisterListener(this,countSensor);
+            }else
+                Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
+            }else{
+            sensorManager.registerListener(this,countSensor, sensorManager.SENSOR_DELAY_FASTEST);
+
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
+        if(c.moveToFirst()){
+            status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
+        }
+        // only register the listener if start button has not been click
+        if(record==false) {
+            Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+            if(countSensor != null){
+                sensorManager.unregisterListener(this,countSensor);
+            } else {
+                Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
+            }
+        }
+
     }
 
     //Sensor change detector

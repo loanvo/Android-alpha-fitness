@@ -62,13 +62,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
         URL2 = "content://cs175.alphafitness/workout";
         workouts = Uri.parse(URL2);
-        Cursor c = managedQuery(workouts, null, null, null, "id");
-        if(c.moveToFirst()){
-            status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
-        }
-        // if workout has not been started
-        if(status == 0) {
-        }
+
             record = false;
 
             portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
@@ -143,7 +137,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
             };
             // Register the listener with the Location Manager to receive location updates
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-        
+
     }
 
     @Override
