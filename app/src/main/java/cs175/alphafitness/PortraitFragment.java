@@ -268,24 +268,22 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         }
     }
 
-/*    @Override
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
-        if(c.moveToFirst()){
-            status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
-        }
+        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         // only register the listener if start button has not been click
         if(record==false) {
-            Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
             if(countSensor != null){
                 sensorManager.unregisterListener(this,countSensor);
             } else {
+
                 Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
             }
+        }else{
+            sensorManager.registerListener(this,countSensor, sensorManager.SENSOR_DELAY_FASTEST);
         }
-
-    }*/
+    }
 
     //Sensor change detector
     @Override

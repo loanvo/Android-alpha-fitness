@@ -72,7 +72,6 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
 
     String selectName= "";
     int id = 0;
-    private String mdate= null;
 
     List<Integer> weekdayList;
     String timeView;
@@ -178,8 +177,6 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                         formateddateList.add(_date);
                     }
                 }
-
-
                 // calculate avg/weekly workouts
                 if(formateddateList.size() <= 7){
                     weekly_distance = distance / formateddateList.size();
@@ -216,17 +213,6 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
     }
 
    public String formatDate(String date){
-     /*  Date newdate = null;
-       DateFormat formatter = new SimpleDateFormat(date);
-       try {
-           newdate = (Date) formatter.parse(date);
-       } catch (java.text.ParseException e){
-           e.printStackTrace();
-       }
-       Calendar cal = Calendar.getInstance();
-       cal.setTime(newdate);
-       mdate = cal.get(Calendar.DATE) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR);
-       return mdate;*/
        String itemString = "";
        String[] parts = date.split(" ");
        itemString +=  parts[0] +

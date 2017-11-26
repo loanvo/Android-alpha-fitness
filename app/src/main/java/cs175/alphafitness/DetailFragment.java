@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -23,8 +24,12 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.EntryXComparator;
+import com.github.mikephil.charting.utils.Utils;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Timer;
@@ -40,13 +45,31 @@ public class DetailFragment extends Fragment{
     LinkedList<Integer> linkedList;
     ArrayList<Double> caloBurnList;
     PortraitFragment portraitFragment;
+
     private LineChart lineChart;
+    private int fillColor = Color.argb(150, 51, 181, 229);
+
     String URL1;
     Uri profile;
     Double weight =0.0;
+
+    DecimalFormat df = new DecimalFormat("####.###");
+
+    TextView averageView;
+    TextView minView;
+    TextView maxView;
+
+    String average = "";  // (min/km)
+    int  minCount = 0;     // min
+    ArrayList<String> avgList;
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.detail_fragment, container, false);
+
+        averageView = view.findViewById(R.id.avg_view);
+        minView = view.findViewById(R.id.min_view);
+        maxView = view.findViewById(R.id.max_view);
+        avgList = new ArrayList<>();
         linkedList = new LinkedList<>();
         caloBurnList = new ArrayList<>();
         portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
@@ -54,214 +77,85 @@ public class DetailFragment extends Fragment{
 
         URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
-        /*Cursor cursor = getActivity().managedQuery(profile, null, null, null, "user_id");
-
-        if(cursor.moveToFirst()) {
-            weight = Double.parseDouble(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_WEIGHT)));
-        }*/
+        int count = 1;
         int steps = 0;
-        Double caloBurned =0.0;
-        for(int i =0; i<linkedList.size()-1; i++){
-            steps = linkedList.get(i+1) - linkedList.get(i);
+        double distance = 0.0;
+        Double caloBurned = 0.0;
+        for (int i = 1; i <linkedList.size() - 1; i++) {
+            steps = linkedList.get(i + 1) - linkedList.get(i);
             caloBurned = portraitFragment.calculateCaloBurned(steps);
             caloBurnList.add(caloBurned);
-        }
-        lineChart = (LineChart) view.findViewById(R.id.linechart);
-/*
-        setData();
-        Legend l = lineChart.getLegend();
-        l.setForm(Legend.LegendForm.LINE);
-        //lineChart.setOnChartGestureListener();
-       // lineChart.setOnChartValueSelectedListener();
-
-     //        portraitFragment.startWorkout();
-  /*    comment out
-   timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            int current = 0;
-            @Override
-            public void run() {
-                if(linkedList.size()<= 60) {
-                    linkedList.addLast(current);
-                }else{
-                    linkedList.removeFirst();
-                    linkedList.addLast(current);
+            distance += steps * portraitFragment.STEP_LENGTH / 1000;
+            if(distance <=1){
+                minCount += i*5.0;        //each i = 5s
+                if(distance==1){
+                    count++;
+                    distance = 0.0;
                 }
             }
-        }, 0,5000); ---------
-        return view;
-    }
-    private ArrayList<Entry> setYAxisValues(){
-        ArrayList<Entry> yVals = new ArrayList<Entry>();
-        for(int i =0; i < linkedList.size(); i++){
-           // yVals.add(new Entry((float) i , i));
-            yVals.add(new Entry((float) linkedList.get(i) , i));
+            if(count >0) {
+                average = df.format(minCount / count / 60.0);
+
+            }else{
+                average = df.format(minCount/60.0);
+            }
+            avgList.add(average);
+            averageView.setText(average);
         }
-        yVals.add(new Entry(60, 0));
-        yVals.add(new Entry(48, 1));
-        yVals.add(new Entry(70.5f, 2));
-        yVals.add(new Entry(100, 3));
-        yVals.add(new Entry(180.9f, 4));
-        return yVals;
-    }
 
-    private ArrayList<String> setXAxisValues(){
-        ArrayList<String> xVals = new ArrayList<>();
-            for(int i = 0; i< linkedList.size(); i = ++){
-            xVals.add(Integer.toString(linkedList.get(i)));
-        }
-        return xVals;
-    }
 
-    private void setData(){
-//        ArrayList<String> xVals = setXAxisValues();
-        ArrayList<Entry> yVals = setYAxisValues();
+        minView.setText(Collections.min(avgList));
+        maxView.setText(Collections.max(avgList));
 
-        LineDataSet set1;
-        if (lineChart.getData() != null &&
-                lineChart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet)lineChart.getData().getDataSetByIndex(0);
-            set1.setValues(yVals);
-            lineChart.getData().notifyDataChanged();
-            lineChart.notifyDataSetChanged();
-        } else {
-            set1 = new LineDataSet(yVals, "Calo Burned");
-            set1.setFillColor(Color.LTGRAY);
-        }
-        set1.setColor(Color.BLACK);
-        set1.setCircleColor(Color.BLACK);
-        set1.setLineWidth(1f);
-        set1.setCircleRadius(3f);
-        set1.setDrawCircleHole(false);
-        set1.setValueTextSize(9f);
-        set1.setDrawFilled(true);
+        // Draw line chart of burned calo in every 5 min
+        lineChart = (LineChart) view.findViewById(R.id.linechart);
+        lineChart.setDrawGridBackground(true);
+       //lineChart.setDrawGridLine
 
-        ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-        dataSets.add(set1); // add the datasets
-
-        // create a data object with the datasets
-        LineData data = new LineData(dataSets);
-
-        // set data
-        lineChart.setData(data);*/
-
-        // no description text
-        lineChart.getDescription().setEnabled(false);
-
-        // enable touch gestures
-        lineChart.setTouchEnabled(true);
-
-        lineChart.setDragDecelerationFrictionCoef(0.9f);
-
-        // enable scaling and dragging
         lineChart.setDragEnabled(true);
         lineChart.setScaleEnabled(true);
-        lineChart.setDrawGridBackground(false);
-        lineChart.setHighlightPerDragEnabled(true);
+        lineChart.getDescription().setEnabled(false);
 
-        // set an alternative background color
-        lineChart.setBackgroundColor(Color.WHITE);
-        lineChart.setViewPortOffsets(0f, 0f, 0f, 0f);
 
-        // add data
-        //setData(100, 30);
-   /*     for(int i = 0; i< caloBurnList.size(); i++) {
-            setData(i, Double.valueOf(caloBurnList.get(i)).floatValue());
-            lineChart.invalidate();
-        }*/
-
-   //testing
-        for(int i = 0; i< caloBurnList.size(); i++) {
-            setData(i, Double.valueOf(10*i).floatValue());
-            lineChart.invalidate();
-        }
-        // get the legend (only possible after setting data)
-        Legend l = lineChart.getLegend();
-        l.setEnabled(false);
-
-        XAxis xAxis = lineChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.TOP_INSIDE);
-        xAxis.setTextSize(10f);
-        xAxis.setTextColor(Color.WHITE);
-        xAxis.setDrawAxisLine(false);
-        xAxis.setDrawGridLines(true);
-        xAxis.setTextColor(Color.rgb(255, 192, 56));
-        xAxis.setCenterAxisLabels(true);
-       // xAxis.setGranularity(1f); // one hour
-
+        XAxis xl = lineChart.getXAxis();
+       // xl.setAvoidFirstLastClipping(true);
+        xl.setAxisMinimum(0f);
+        xl.setDrawGridLines(false);
 
         YAxis leftAxis = lineChart.getAxisLeft();
-        leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
-        leftAxis.setTextColor(ColorTemplate.getHoloBlue());
-        leftAxis.setDrawGridLines(true);
-        leftAxis.setGranularityEnabled(true);
-        leftAxis.setAxisMinimum(0f);
-        leftAxis.setAxisMaximum(170f);
-        leftAxis.setYOffset(-9f);
-        leftAxis.setTextColor(Color.rgb(255, 192, 56));
+        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+        leftAxis.setDrawGridLines(false);
 
         YAxis rightAxis = lineChart.getAxisRight();
         rightAxis.setEnabled(false);
+
+        setDara(caloBurnList.size(), caloBurnList);
+
+        Legend legend = lineChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
+
+       // lineChart.invalidate();
         return view;
     }
 
-
-
-
-
-    private void setData(int count, float range) {
-
-        // now in hours
-        //long now = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
-
-        ArrayList<Entry> values = new ArrayList<Entry>();
-       // for(int i =0; i <= count; i++){
-            // yVals.add(new Entry((float) i , i));
-            //values.add(new Entry(i*5 , Double.valueOf(caloBurnList.get(i)).floatValue()));
-            values.add(new Entry(count*5 ,range));
-
-       // }
-    /*
-
-        float from = now;
-
-        // count = hours
-        float to = now + count;
-
-        // increment by 1 hour
-        Random r = new Random();
-        float min = 0.0f;
-        float max = 50.0f;
-        for (float x = from; x < to; x++) {
-
-            float y = (float) r.nextFloat()*(max - min) + min;
-            values.add(new Entry(x, y)); // add one entry per hour
+    public void setDara(int count,ArrayList<Double> ranges){
+        ArrayList<Entry> entries = new ArrayList<Entry>();
+        for(int i =0; i < count; i++){
+            float xVal = (float) i;
+            float yVal = Float.parseFloat(String.valueOf(ranges.get(i)));
+            entries.add(new Entry(xVal, yVal));
         }
-*/
-        // create a dataset and give it a type
-        LineDataSet set1 = new LineDataSet(values, "Calo Burned");
-        set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-        set1.setColor(ColorTemplate.getHoloBlue());
-        set1.setValueTextColor(ColorTemplate.getHoloBlue());
-        set1.setLineWidth(1.5f);
+       // Collections.sort(entries, new EntryXComparator());
+        LineDataSet set1 = new LineDataSet(entries, "Calo Burned in 5 min");
         set1.setDrawCircles(false);
-        set1.setDrawValues(false);
-        set1.setFillAlpha(65);
-        set1.setFillColor(ColorTemplate.getHoloBlue());
-        set1.setHighLightColor(Color.rgb(244, 117, 117));
-        set1.setDrawCircleHole(false);
-
-        // create a data object with the datasets
+        set1.setFillColor(Color.MAGENTA);
+        set1.setLineWidth(3f);
+        set1.setFillAlpha(255);
+        set1.setDrawFilled(true);
+        set1.setFillColor(Color.CYAN);
         LineData data = new LineData(set1);
-        data.setValueTextColor(Color.WHITE);
-        data.setValueTextSize(9f);
 
-        // set data
         lineChart.setData(data);
     }
-
-
-
 
 }

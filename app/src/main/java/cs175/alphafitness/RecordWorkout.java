@@ -39,6 +39,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
@@ -165,8 +166,35 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
                     LatLng here = new LatLng(newLatitude, newLongtitude);
 
+                    //test
+                    points.add(here);
+//                    mMap.clear();
+                    PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).
+                            geodesic(true);
+                    for(int i = 0; i< points.size(); i++){
+                        LatLng point = points.get(i);
+                        options.add(point);
+                    }
 
                     if (mMap != null) {
+                        if (mLocation == null) {
+                            mLocation = location;
+                            mMap.addMarker(new MarkerOptions().position(here).title("User"));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                        } else {
+                            mMap.addMarker(new MarkerOptions().position(here).title("User"));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                            mdistance = mLocation.distanceTo(location);
+                            if (mdistance >= 1) {
+                                distance += (mdistance / 1000);
+                                line = mMap.addPolyline(options);
+                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                            }
+                        }
+                    }
+
+
+  /*                  if (mMap != null) {
                         if (mLocation == null) {
                             mLocation = location;
                             mMap.addMarker(new MarkerOptions().position(here).title("User"));
@@ -181,6 +209,8 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
                            }
                         }
                     }
+
+       */
                 }
 
 

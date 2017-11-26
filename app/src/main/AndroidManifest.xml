@@ -60,7 +60,7 @@
 
         <activity android:name=".ProfileScreen"
             android:label="Profile"
-            android:parentActivityName=".RecordWorkout"></activity>
+            ></activity>
     </application>
 
 </manifest>
