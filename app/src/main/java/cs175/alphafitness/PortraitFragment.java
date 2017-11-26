@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.telecom.RemoteConnection;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -231,7 +232,36 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
             handler.postDelayed(this, 0);
         }
     };
+/*
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //Initialize sensor
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
+        URL2 = "content://cs175.alphafitness/workout";
+        workouts = Uri.parse(URL2);
+        Cursor cursor = getActivity().managedQuery(workouts, null, null, null, "user_id");
+        if(cursor.moveToFirst()) {
+            status = Integer.parseInt(cursor.getString(cursor.getColumnIndex(MyContentProvider.STATUS)));
+        }
+        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+
+        if(countSensor != null){
+            if(status == 1){
+                sensorManager.registerListener(this, countSensor, sensorManager.SENSOR_DELAY_UI);
+            } else{
+                sensorManager.unregisterListener(this,countSensor);
+            }
+        } else {
+            Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
+        }
+//        startWorkout();
+
+    }
+
+*/
     @Override
     public void onResume() {
 
@@ -240,6 +270,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         if(record==true) {
             button.setText("Stop Workout");
             button.setBackgroundColor(Color.RED);
+            button.setTag(0);
         }
             Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
             if(countSensor != null){
@@ -258,6 +289,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         if(record==false){
             button.setText("Start Workout");
             button.setBackgroundColor(Color.GREEN);
+            button.setTag(1);
             if(countSensor != null) {
                 sensorManager.unregisterListener(this,countSensor);
             }else

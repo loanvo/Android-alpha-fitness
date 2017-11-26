@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -62,11 +64,39 @@ public class DetailFragment extends Fragment{
     String average = "";  // (min/km)
     int  minCount = 0;     // min
     ArrayList<String> avgList;
+
+    private Thread thread;
+    //Sensor's variable
+    SensorManager sensorManager;
+    Sensor mStepCounter;
+    SensorEventListener sensorEventListener;
+    boolean plotData = true;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.detail_fragment, container, false);
+        setRetainInstance(true);
+        //Initialize sensor
+        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
-        averageView = view.findViewById(R.id.avg_view);
+       sensorEventListener = new SensorEventListener() {
+           @Override
+           public void onSensorChanged(SensorEvent event) {
+               if(plotData) {
+                   plotData = false;
+               }
+           }
+
+           @Override
+           public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+           }
+       };
+       sensorManager.registerListener(sensorEventListener, sensorManager
+               .getDefaultSensor(Sensor.TYPE_STEP_COUNTER), SensorManager.SENSOR_DELAY_NORMAL);
+
+       averageView = view.findViewById(R.id.avg_view);
         minView = view.findViewById(R.id.min_view);
         maxView = view.findViewById(R.id.max_view);
         avgList = new ArrayList<>();
@@ -101,11 +131,12 @@ public class DetailFragment extends Fragment{
             }
             avgList.add(average);
             averageView.setText(average);
+            minView.setText(Collections.min(avgList));
+            maxView.setText(Collections.max(avgList));
         }
 
 
-        minView.setText(Collections.min(avgList));
-        maxView.setText(Collections.max(avgList));
+
 
         // Draw line chart of burned calo in every 5 min
         lineChart = (LineChart) view.findViewById(R.id.linechart);
@@ -116,9 +147,7 @@ public class DetailFragment extends Fragment{
         lineChart.setScaleEnabled(true);
         lineChart.getDescription().setEnabled(false);
 
-
         XAxis xl = lineChart.getXAxis();
-       // xl.setAvoidFirstLastClipping(true);
         xl.setAxisMinimum(0f);
         xl.setDrawGridLines(false);
 
@@ -130,6 +159,7 @@ public class DetailFragment extends Fragment{
         rightAxis.setEnabled(false);
 
         setDara(caloBurnList.size(), caloBurnList);
+        startPlot();
 
         Legend legend = lineChart.getLegend();
         legend.setForm(Legend.LegendForm.LINE);
@@ -137,6 +167,28 @@ public class DetailFragment extends Fragment{
        // lineChart.invalidate();
         return view;
     }
+
+    private void startPlot(){
+        if(thread != null){
+            thread.interrupt();
+        }else{
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while(true) {
+                        plotData = true;
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+
 
     public void setDara(int count,ArrayList<Double> ranges){
         ArrayList<Entry> entries = new ArrayList<Entry>();
@@ -153,7 +205,13 @@ public class DetailFragment extends Fragment{
         set1.setFillAlpha(255);
         set1.setDrawFilled(true);
         set1.setFillColor(Color.CYAN);
+        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set1.setCubicIntensity(0.2f);
         LineData data = new LineData(set1);
+        //new
+        lineChart.setMaxVisibleValueCount(60);
+        lineChart.moveViewToX(data.getEntryCount());
+
 
         lineChart.setData(data);
     }
