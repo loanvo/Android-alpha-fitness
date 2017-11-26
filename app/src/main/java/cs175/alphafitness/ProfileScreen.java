@@ -121,11 +121,15 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         calo_view = (TextView) findViewById(R.id.calo_view);
 
         Cursor c = managedQuery(profile, null, null, null, "user_id");
+        Log.e("po========", String.valueOf(c.getCount()));
+
         if(c.moveToFirst()){
             selectName = c.getString(c.getColumnIndex(MyContentProvider.KEY_NAME));
             id = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.KEY_ID)));
             }
-        Cursor curW = managedQuery(workouts, null, MyContentProvider.USER_ID + "=?", new String []{Integer.toString(id)}, "id");
+        Cursor curW = managedQuery(workouts, null, null, null, "id");
+        Log.e("wor========", String.valueOf(curW.getCount()));
+
         String timeString = "";
             if (cursor != null && curW.moveToFirst()) {
                 do {
@@ -145,7 +149,7 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                         time += 0L;
                     }else {
                         timeString = curW.getString(curW.getColumnIndex(MyContentProvider.KEY_TIME));
-                        time += (Time.valueOf(timeString)).getTime();
+                        time += Long.parseLong(timeString);
                     }
 
                     if(str4 == null || str4.equalsIgnoreCase("null") || str4.isEmpty()){
@@ -172,9 +176,11 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                 calo_view.setText(df.format(calo) + " cal");
                 String _date = null;
                 for(int i =0; i<dateList.size(); i++){
-                    _date= formatDate(dateList.get(i));
-                    if(!formateddateList.contains(_date)){
-                        formateddateList.add(_date);
+                    if(dateList.get(i) != null) {
+                        _date = formatDate(dateList.get(i));
+                        if (!formateddateList.contains(_date)) {
+                            formateddateList.add(_date);
+                        }
                     }
                 }
                 // calculate avg/weekly workouts
@@ -245,11 +251,14 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                     if(cursor.moveToFirst()){
                         do {
                             existName = cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_NAME));
-                            getContentResolver().delete(profile, MyContentProvider.KEY_NAME + "=?", new String[]{existName});
+                            //getContentResolver().delete(profile, MyContentProvider.KEY_NAME + "=?", new String[]{existName});
                         } while (cursor.moveToNext());
                     }
                 }
                 name = nameEdit.getText().toString();
+                if(name.equals(existName)){
+                    getContentResolver().delete(profile, MyContentProvider.KEY_NAME + "=?", new String[]{existName});
+                }
                 gender = genderEdit.getText().toString();
                 weight = Double.parseDouble(weightEdit.getText().toString());
 

@@ -28,6 +28,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telecom.RemoteConnection;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -43,6 +44,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallback {
     //Map's variable
@@ -77,48 +79,27 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
         URL2 = "content://cs175.alphafitness/workout";
         workouts = Uri.parse(URL2);
         //Dummy data for profile
+        Cursor cursor = managedQuery(profile, null, null, null, "user_id");
+        String existName = "";
+        int count = cursor.getCount();
+        if(count != 0) {
+            if(cursor.moveToFirst()){
+                do {
+                    existName = cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_NAME));
+                } while (cursor.moveToNext());
+            }
+        }
+        String name = "Tester";
+        if(name.equals(existName)){
+            getContentResolver().delete(profile, MyContentProvider.KEY_NAME + "=?", new String[]{existName});
+        }
         contentValues.put(MyContentProvider.KEY_NAME, "Tester");
         contentValues.put(MyContentProvider.KEY_GENDER, "Female");
         contentValues.put(MyContentProvider.KEY_WEIGHT, 100.0);
         getContentResolver().insert(MyContentProvider.URI1, contentValues);
-
-        //Dumies data for workouts
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.1);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 10);
-        contentValues.put(MyContentProvider.KEY_TIME, 5000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.5);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 15);
-        contentValues.put(MyContentProvider.KEY_TIME, 10000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.03);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 3);
-        contentValues.put(MyContentProvider.KEY_TIME, 500);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 1.0);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 200);
-        contentValues.put(MyContentProvider.KEY_TIME, 50000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.1);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 10);
-        contentValues.put(MyContentProvider.KEY_TIME, 5000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.8);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 50);
-        contentValues.put(MyContentProvider.KEY_TIME, 30000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
+        contentValues.clear();
+        //uncomment to get dummy data
+        getDummyData();
 
         record = false;
 
@@ -233,6 +214,67 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
         // Register the listener with the Location Manager to receive location updates
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 
+    }
+
+    public void getDummyData(){
+        for(int i =0; i < 30; i++){
+            double d = (double) (Math.random()*(2.0 - 0.1) + 0.1);
+            double cal = d*1.6*100;     // estimated walk 1 mile burn 100 cal
+            String t = Long.toString((new Double(d*1080000.0)).longValue()); // average walk 18 min/mile
+            Date da = new Date();
+            contentValues.put(MyContentProvider.KEY_DISTANCE, d);
+            contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+            contentValues.put(MyContentProvider.KEY_CALO, cal);
+            contentValues.put(MyContentProvider.KEY_TIME, t);
+            contentValues.put(MyContentProvider.DATE, da.toString());
+            getContentResolver().insert(MyContentProvider.URI2, contentValues);
+            contentValues.clear();
+        }
+        Cursor pc = managedQuery(workouts, null, null, null, "user_id");
+        //Log.e("wor========", String.valueOf(pc.getCount()));
+        Cursor p = managedQuery(profile, null, null, null, "user_id");
+        //Log.e("po========", String.valueOf(p.getCount()));
+        //contentValues.clear();
+
+/*
+        //Dumies data for workouts
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.1);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 10);
+        contentValues.put(MyContentProvider.KEY_TIME, 5000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.5);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 15);
+        contentValues.put(MyContentProvider.KEY_TIME, 10000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.03);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 3);
+        contentValues.put(MyContentProvider.KEY_TIME, 500);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 1.0);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 200);
+        contentValues.put(MyContentProvider.KEY_TIME, 50000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.1);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 10);
+        contentValues.put(MyContentProvider.KEY_TIME, 5000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.8);
+        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
+        contentValues.put(MyContentProvider.KEY_CALO, 50);
+        contentValues.put(MyContentProvider.KEY_TIME, 30000);
+        getContentResolver().insert(MyContentProvider.URI2, contentValues);
+
+*/
     }
 
     @Override

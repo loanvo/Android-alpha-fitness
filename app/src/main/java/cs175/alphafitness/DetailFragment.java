@@ -55,7 +55,7 @@ public class DetailFragment extends Fragment{
     Uri profile;
     Double weight =0.0;
 
-    DecimalFormat df = new DecimalFormat("####.###");
+    DecimalFormat df = new DecimalFormat("####.##");
 
     TextView averageView;
     TextView minView;
@@ -75,26 +75,6 @@ public class DetailFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.detail_fragment, container, false);
-        setRetainInstance(true);
-        //Initialize sensor
-        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-
-       sensorEventListener = new SensorEventListener() {
-           @Override
-           public void onSensorChanged(SensorEvent event) {
-               if(plotData) {
-                   plotData = false;
-               }
-           }
-
-           @Override
-           public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-           }
-       };
-       sensorManager.registerListener(sensorEventListener, sensorManager
-               .getDefaultSensor(Sensor.TYPE_STEP_COUNTER), SensorManager.SENSOR_DELAY_NORMAL);
 
        averageView = view.findViewById(R.id.avg_view);
         minView = view.findViewById(R.id.min_view);
@@ -111,7 +91,7 @@ public class DetailFragment extends Fragment{
         int steps = 0;
         double distance = 0.0;
         Double caloBurned = 0.0;
-        for (int i = 1; i <linkedList.size() - 1; i++) {
+        for (int i = 1; i < linkedList.size() - 1; i++) {
             steps = linkedList.get(i + 1) - linkedList.get(i);
             caloBurned = portraitFragment.calculateCaloBurned(steps);
             caloBurnList.add(caloBurned);
@@ -159,7 +139,6 @@ public class DetailFragment extends Fragment{
         rightAxis.setEnabled(false);
 
         setDara(caloBurnList.size(), caloBurnList);
-        startPlot();
 
         Legend legend = lineChart.getLegend();
         legend.setForm(Legend.LegendForm.LINE);
@@ -168,34 +147,16 @@ public class DetailFragment extends Fragment{
         return view;
     }
 
-    private void startPlot(){
-        if(thread != null){
-            thread.interrupt();
-        }else{
-            thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while(true) {
-                        plotData = true;
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-
 
     public void setDara(int count,ArrayList<Double> ranges){
         ArrayList<Entry> entries = new ArrayList<Entry>();
-        for(int i =0; i < count; i++){
-            float xVal = (float) i;
-            float yVal = Float.parseFloat(String.valueOf(ranges.get(i)));
-            entries.add(new Entry(xVal, yVal));
+        if(count == 0) {
+            for (int i = 0; i < count; i++) {
+                float xVal = (float) i;
+                float yVal = Float.parseFloat(String.valueOf(ranges.get(i)));
+                entries.add(new Entry(xVal, yVal));
+            }
+            entries.add(new Entry(0, 0));
         }
        // Collections.sort(entries, new EntryXComparator());
         LineDataSet set1 = new LineDataSet(entries, "Calo Burned in 5 min");
@@ -209,8 +170,8 @@ public class DetailFragment extends Fragment{
         set1.setCubicIntensity(0.2f);
         LineData data = new LineData(set1);
         //new
-        lineChart.setMaxVisibleValueCount(60);
-        lineChart.moveViewToX(data.getEntryCount());
+        //lineChart.setMaxVisibleValueCount(60);
+        //lineChart.moveViewToX(data.getEntryCount());
 
 
         lineChart.setData(data);

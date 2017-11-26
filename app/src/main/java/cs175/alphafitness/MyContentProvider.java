@@ -44,7 +44,7 @@ public class MyContentProvider extends ContentProvider {
     private static HashMap <String, String> WORKOUT_PROJECTION_MAP;
 
     private SQLiteDatabase db;
-    static final int DATABASE_VERSION = 7;
+    static final int DATABASE_VERSION = 10;
     static final String DATABASE_NAME = "Workouts_Database";
 
     //Create Profile table
@@ -157,7 +157,9 @@ public class MyContentProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
+
         Uri _uri = null;
+
         switch (uriMatcher.match(uri)){
             case PROFILE:
                 long _ID1 = db.insert(TABLE_NAME, "", values);

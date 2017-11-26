@@ -197,7 +197,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         contentValues.put(MyContentProvider.DATE, endDate.toString());
         contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
         contentValues.put(MyContentProvider.KEY_DISTANCE,  distanceView.getText().toString());
-        contentValues.put(MyContentProvider.KEY_TIME, durationView.getText().toString());
+        contentValues.put(MyContentProvider.KEY_TIME, Long.toString(timeBuff));
         contentValues.put(MyContentProvider.STATUS, 0);
         contentValues.put(MyContentProvider.KEY_CALO, burned_calo);
         getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
