@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -53,10 +54,10 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
     Boolean record;
     private double mdistance;
-    int status =0;
+    int status = 0;
 
     IMyAidlInterface remoteService;
-    RemoteConnection remoteConnection =null;
+    RemoteConnection remoteConnection = null;
 
     PortraitFragment portraitFragment;
     private static final String TAG = "PortraitFragment";
@@ -65,6 +66,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     private String URL2;
     private Uri workouts;
     ContentValues contentValues;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,85 +115,90 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
         contentValues.put(MyContentProvider.KEY_DISTANCE, 0.8);
         contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO,50 );
+        contentValues.put(MyContentProvider.KEY_CALO, 50);
         contentValues.put(MyContentProvider.KEY_TIME, 30000);
         getContentResolver().insert(MyContentProvider.URI2, contentValues);
 
 
         record = false;
 
-            portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-            if (portraitFragment == null) {
-                portraitFragment = new PortraitFragment();
-                getFragmentManager().beginTransaction().add(portraitFragment, TAG);
-                portraitFragment.getmCounterStepsSteps();
-                portraitFragment.startWorkout();
-            }
+        portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
+        if (portraitFragment == null) {
+            portraitFragment = new PortraitFragment();
+            getFragmentManager().beginTransaction().add(portraitFragment, TAG);
+            portraitFragment.getmCounterStepsSteps();
+            portraitFragment.startWorkout();
+        }
 
-            //Initialize the sericei
-            remoteConnection = new RemoteConnection();
-            Intent intent = new Intent();
-            intent.setClassName("cs175.alphafitness", cs175.alphafitness.MyService.class.getName());
-            if (!bindService(intent, remoteConnection, BIND_AUTO_CREATE)) {
-                Toast.makeText(this, "Fail to bind the remote service ", Toast.LENGTH_LONG).show();
-            }
+        //Initialize the sericei
+        remoteConnection = new RemoteConnection();
+        Intent intent = new Intent();
+        intent.setClassName("cs175.alphafitness", cs175.alphafitness.MyService.class.getName());
+        if (!bindService(intent, remoteConnection, BIND_AUTO_CREATE)) {
+            Toast.makeText(this, "Fail to bind the remote service ", Toast.LENGTH_LONG).show();
+        }
 
-            //Initialize map
-            FragmentManager manager = getFragmentManager();
-            FragmentTransaction transaction = manager.beginTransaction();
-            MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
-            transaction.show(fragment);
-            transaction.commit();
-            fragment.getMapAsync(this);
+        //Initialize map
+        FragmentManager manager = getFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
+        transaction.show(fragment);
+        transaction.commit();
+        fragment.getMapAsync(this);
 
-            points = new ArrayList<LatLng>();
+        points = new ArrayList<LatLng>();
 
-            if (Build.VERSION.SDK_INT >= 23 &&
-                    ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
+        if (Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
 
-            // Acquire a reference to the system Location Manager
-            LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-            // Define a listener that responds to location updates
-            LocationListener locationListener = new LocationListener() {
-                public void onLocationChanged(Location location) {
-                    double newLatitude = 0;
-                    double newLongtitude = 0;
-                    newLatitude = location.getLatitude();
-                    newLongtitude = location.getLongitude();
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                double newLatitude = 0;
+                double newLongtitude = 0;
+                newLatitude = location.getLatitude();
+                newLongtitude = location.getLongitude();
 
 
-                    LatLng here = new LatLng(newLatitude, newLongtitude);
+                LatLng here = new LatLng(newLatitude, newLongtitude);
+                if(mMap != null){
+                    if(mLocation == null){
+                        mLocation = location;
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                    }else {
+                        PolylineOptions options = new PolylineOptions();
+                        options.add(here);
+                        if(options != null) {
+                            mMap.addPolyline(options.width(10).color(Color.BLUE));
+                        }
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
 
-                    //test
-                    points.add(here);
-//                    mMap.clear();
-                    PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).
-                            geodesic(true);
-                    for(int i = 0; i< points.size(); i++){
-                        LatLng point = points.get(i);
-                        options.add(point);
                     }
+                }
 
-                    if (mMap != null) {
-                        if (mLocation == null) {
-                            mLocation = location;
-                            mMap.addMarker(new MarkerOptions().position(here).title("User"));
+/*
+                if (mMap != null) {
+                    if (mLocation == null) {
+                        mLocation = location;
+                        mMap.addMarker(new MarkerOptions().position(here).title("User"));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                    } else {
+                        mMap.addMarker(new MarkerOptions().position(here).title("User"));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                        mdistance = mLocation.distanceTo(location);
+                        if (mdistance >= 1) {
+                            distance += (mdistance / 1000);
+                            line = mMap.addPolyline(options);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                        } else {
-                            mMap.addMarker(new MarkerOptions().position(here).title("User"));
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                            mdistance = mLocation.distanceTo(location);
-                            if (mdistance >= 1) {
-                                distance += (mdistance / 1000);
-                                line = mMap.addPolyline(options);
-                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                            }
                         }
                     }
+                }*/
 
 
   /*                  if (mMap != null) {
@@ -211,26 +218,38 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
                     }
 
        */
-                }
+            }
 
 
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-                }
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
 
-                public void onProviderEnabled(String provider) {
-                }
+            public void onProviderEnabled(String provider) {
+            }
 
-                public void onProviderDisabled(String provider) {
-                }
-            };
-            // Register the listener with the Location Manager to receive location updates
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+            public void onProviderDisabled(String provider) {
+            }
+        };
+        // Register the listener with the Location Manager to receive location updates
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
     }
 
     class RemoteConnection implements ServiceConnection {
