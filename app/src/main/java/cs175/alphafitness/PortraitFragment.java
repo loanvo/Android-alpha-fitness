@@ -97,15 +97,9 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         setRetainInstance(true);
 
         URL1 = "content://cs175.alphafitness/profile";
-            profile = Uri.parse(URL1);
-            URL2 = "content://cs175.alphafitness/workout";
-            workouts = Uri.parse(URL2);
- //       Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
-   //     if(c.moveToFirst()){
-     //       status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
-       // }
-        URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
+        URL2 = "content://cs175.alphafitness/workout";
+        workouts = Uri.parse(URL2);
         Cursor cursor = getActivity().managedQuery(profile, null, null, null, "user_id");
         if(cursor.moveToFirst()) {
             weight = Double.parseDouble(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_WEIGHT)));
@@ -115,7 +109,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
             distanceView = (TextView) view.findViewById(R.id.distance_view);
             durationView = (TextView) view.findViewById(R.id.duration_view);
 
-     //       record = false;
+
             //Initialize sensor
             sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
             mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
@@ -189,20 +183,6 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         contentValues.put(MyContentProvider.STATUS, 1);
         contentValues.put(MyContentProvider.KEY_STEPS, rawSteps);
         getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-       // contentValues.put(MyContentProvider.USER_ID, userID);
-       // Log.d("currentmmmm--------", getmCounterStepsSteps().toString());
-/*
-        Cursor c = getActivity().managedQuery(profile, null, null, null, "user_id");
-
-        if(c.moveToFirst()){
-            userid = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.KEY_ID)));
-        }
-        contentValues.put(MyContentProvider.USER_ID, userid);
-        contentValues.put(MyContentProvider.DATE, startDate.toString());
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);*/
-
     }
 
     public void stopWorkout(){
@@ -210,19 +190,8 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         handler.removeCallbacks(runnable);
 
         endDate = new Date();
-       // Log.d("cal  fr rawstep--------", Integer.toString(rawSteps));
-        Log.d("clist rawstep--------", linkedList.toString());
-    //    Log.d("list call======--------", getmCounterStepsSteps().toString());
-
-
-        //calculate burned calories
         burned_calo = calculateCaloBurned(mSteps);
-        /*calo_per_mile = CONST * weight;
-        calo_per_step = calo_per_mile / STEPS_PER_MILE;
-        burned_calo = mSteps * calo_per_step;*/
 
-
-        //Log.d("start---------", startDate.toString());
         contentValues.put(MyContentProvider.USER_ID, userid);
         contentValues.put(MyContentProvider.DATE, endDate.toString());
         contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
@@ -267,30 +236,23 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     public void onResume() {
 
         super.onResume();
-         Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
-        if(c.moveToFirst()){
-            status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
-        }
         // only register the listener if start button has not been click
         if(record==true) {
             button.setText("Stop Workout");
             button.setBackgroundColor(Color.RED);
+        }
             Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
             if(countSensor != null){
                 sensorManager.registerListener(this, countSensor, sensorManager.SENSOR_DELAY_UI);
             } else {
                 Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
             }
-        }
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Cursor c = getActivity().managedQuery(workouts, null, null, null, "id");
-        if(c.moveToFirst()){
-            status = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.STATUS)));
-        }
         Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
         if(record==false){
@@ -330,52 +292,11 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     public void onSensorChanged(SensorEvent event) {
 
         if (record == true) {
-            //Timer timer = new Timer();
-
-            /*long start_timer = SystemClock.uptimeMillis();
-            handler.postDelayed(runnable, 0);
-            if((SystemClock.uptimeMillis() - start_timer) % 5 == 0) {
-                if(linkedList.size()<= 60) {
-                    linkedList.add((int) event.values[0]);
-                    Log.e("size===========", Integer.toString(linkedList.size()));
-                    Log.e("time===========", Long.toString((SystemClock.uptimeMillis() - start_timer)));
-
-
-                }else{
-                    linkedList.removeFirst();
-                    linkedList.addLast((int) event.values[0]);
-                }
-            }*/
-            //handler.removeCallbacks(runnable);
             if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
                 rawSteps = (int) event.values[0];
-                //contentValues.put(MyContentProvider.KEY_STEPS, rawSteps);
-   //             getActivity().getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-                /*timer.schedule(new TimerTask() {
-                    int current = (int) event.values[0];
-
-                    @Override
-                    public void run() {
-                            linkedList.addLast(current);
-                            Log.d("list===========", linkedList.toString());
-
-                            if(linkedList.size()<= 60) {
-                                linkedList.addLast(current);
-                            }else{
-                                linkedList.removeFirst();
-                                linkedList.addLast(current);
-                            }
-
-                    }
-                }, 0,5000);*/
-
-                //Log.d("rawstep--------", Integer.toString(rawSteps));
-
                 if (mCounterSteps < 1) {
                     // initial value
                     mCounterSteps = (int) event.values[0];
-
                 }
                 // Calculate steps taken based on first counter value received.
                 mSteps = (int) event.values[0] - mCounterSteps;
@@ -383,13 +304,11 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
                 // calculate distance base on amounts of steps in km
                 workoutDistance = mSteps * STEP_LENGTH/1000;
                 distanceView.setText(df.format(workoutDistance));
-
             }
         }
     }
 
     public LinkedList<Integer> getmCounterStepsSteps(){
-        Log.d("cal   list--------", linkedList.toString());
        return linkedList;
     }
 

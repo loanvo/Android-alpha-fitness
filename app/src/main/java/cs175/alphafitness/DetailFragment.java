@@ -170,6 +170,7 @@ public class DetailFragment extends Fragment{
             setData(i, Double.valueOf(caloBurnList.get(i)).floatValue());
             lineChart.invalidate();
         }*/
+
    //testing
         for(int i = 0; i< caloBurnList.size(); i++) {
             setData(i, Double.valueOf(10*i).floatValue());

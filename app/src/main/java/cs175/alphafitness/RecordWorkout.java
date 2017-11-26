@@ -38,11 +38,16 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+
+import java.util.ArrayList;
 
 public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallback {
     //Map's variable
     private GoogleMap mMap = null;
     private Location mLocation = null;
+    private ArrayList<LatLng> points;
+    Polyline line;
     private double distance;
 
     Boolean record;
@@ -138,6 +143,8 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
             transaction.commit();
             fragment.getMapAsync(this);
 
+            points = new ArrayList<LatLng>();
+
             if (Build.VERSION.SDK_INT >= 23 &&
                     ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -158,6 +165,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
                     LatLng here = new LatLng(newLatitude, newLongtitude);
 
+
                     if (mMap != null) {
                         if (mLocation == null) {
                             mLocation = location;
@@ -170,10 +178,11 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
                                 //distanceView.setText(df.format(distance));
                                 mMap.addMarker(new MarkerOptions().position(here).title("User"));
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                            }
+                           }
                         }
                     }
                 }
+
 
                 public void onStatusChanged(String provider, int status, Bundle extras) {
                 }
