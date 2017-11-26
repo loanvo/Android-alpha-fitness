@@ -94,7 +94,11 @@ public class DetailFragment extends Fragment{
         for (int i = 1; i < linkedList.size() - 1; i++) {
             steps = linkedList.get(i + 1) - linkedList.get(i);
             caloBurned = portraitFragment.calculateCaloBurned(steps);
-            caloBurnList.add(caloBurned);
+            if(caloBurned == 0){
+                caloBurnList.add(0.0);
+            }else {
+                caloBurnList.add(caloBurned);
+            }
             distance += steps * portraitFragment.STEP_LENGTH / 1000;
             if(distance <=1){
                 minCount += i*5.0;        //each i = 5s
@@ -151,12 +155,13 @@ public class DetailFragment extends Fragment{
     public void setDara(int count,ArrayList<Double> ranges){
         ArrayList<Entry> entries = new ArrayList<Entry>();
         if(count == 0) {
+            entries.add(new Entry(0, 0));
+        }else{
             for (int i = 0; i < count; i++) {
                 float xVal = (float) i;
-                float yVal = Float.parseFloat(String.valueOf(ranges.get(i)));
+                float yVal = Float.parseFloat(String.valueOf(ranges.get(i)) );
                 entries.add(new Entry(xVal, yVal));
             }
-            entries.add(new Entry(0, 0));
         }
        // Collections.sort(entries, new EntryXComparator());
         LineDataSet set1 = new LineDataSet(entries, "Calo Burned in 5 min");

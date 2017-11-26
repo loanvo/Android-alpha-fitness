@@ -152,12 +152,19 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
+                    for(int i = 0; i<=60; i++){
+                        linkedList.add(0);
+                    }
+                    for (int j =0; j <= 60; j++){
                     if (linkedList.size() <= 60) {
+                        linkedList.remove(j);
                         linkedList.addLast(rawSteps);
                     } else {
                         linkedList.removeFirst();
                         linkedList.addLast(rawSteps);
                     }
+                    }
+
                 }
             }, 0, 5000);
 
