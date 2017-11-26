@@ -44,7 +44,7 @@ public class MyContentProvider extends ContentProvider {
     private static HashMap <String, String> WORKOUT_PROJECTION_MAP;
 
     private SQLiteDatabase db;
-    static final int DATABASE_VERSION = 6;
+    static final int DATABASE_VERSION = 7;
     static final String DATABASE_NAME = "Workouts_Database";
 
     //Create Profile table

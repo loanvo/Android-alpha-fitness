@@ -63,7 +63,8 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
     long time = 0L;
     int workout = 0;
     Double calo = 0.0;
-    List<Date> dateList;
+    List<String> dateList;
+    List<String> formateddateList;
     Double weekly_distance = 0.0;
     long weekly_time = 0L;
     int weekly_workout = 0;
@@ -71,7 +72,7 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
 
     String selectName= "";
     int id = 0;
-    private Date mdate= null;
+    private String mdate= null;
 
     List<Integer> weekdayList;
     String timeView;
@@ -88,6 +89,8 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         profile = Uri.parse(URL1);
 
         dateList = new ArrayList<>();
+       formateddateList = new ArrayList<>();
+
         weekdayList = new ArrayList<>();
 
         nameView = (TextView) findViewById(R.id.name_view);
@@ -159,7 +162,7 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                     if(str3 == null || str3.equalsIgnoreCase("null") || str3.isEmpty()){
                         dateList.add(null);
                     }else {
-                        dateList.add(formatDate(curW.getString(curW.getColumnIndex(MyContentProvider.DATE))));
+                        dateList.add(String.valueOf(curW.getString(curW.getColumnIndex(MyContentProvider.DATE))));
                     }
 
                 } while (curW.moveToNext());
@@ -168,13 +171,27 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                 distance_view.setText((df.format(distance)) + " km");
                 workouts_view.setText(Integer.toString(workout) + " times");
                 calo_view.setText(df.format(calo) + " cal");
+                String _date = null;
+                for(int i =0; i<dateList.size(); i++){
+                    _date= formatDate(dateList.get(i));
+                    if(!formateddateList.contains(_date)){
+                        formateddateList.add(_date);
+                    }
+                }
+
 
                 // calculate avg/weekly workouts
-                weekly_distance = (distance/dateList.size())*7;
-                weekly_time = (time/dateList.size())*7;
-                weekly_calo = (calo/dateList.size())*7;
-                weekly_workout = (workout/dateList.size())*7;
-
+                if(formateddateList.size() <= 7){
+                    weekly_distance = distance / formateddateList.size();
+                    weekly_time = time / formateddateList.size();
+                    weekly_calo = calo / formateddateList.size();
+                    weekly_workout = workout / formateddateList.size();
+                }else {
+                    weekly_distance = (distance / formateddateList.size()) * 7;
+                    weekly_time = (time / formateddateList.size()) * 7;
+                    weekly_calo = (calo / formateddateList.size()) * 7;
+                    weekly_workout = (workout / formateddateList.size()) * 7;
+                }
                 // set average weekly workouts view
                 week_distance_view.setText(df.format(weekly_distance) + " km");
                 week_time_view.setText(formatTimeView(weekly_time));
@@ -198,14 +215,25 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         return timeView;
     }
 
-   public Date formatDate(String date){
-       SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+   public String formatDate(String date){
+     /*  Date newdate = null;
+       DateFormat formatter = new SimpleDateFormat(date);
        try {
-            mdate = format.parse(date);
-       }catch (java.text.ParseException e){
+           newdate = (Date) formatter.parse(date);
+       } catch (java.text.ParseException e){
            e.printStackTrace();
        }
-       return mdate;
+       Calendar cal = Calendar.getInstance();
+       cal.setTime(newdate);
+       mdate = cal.get(Calendar.DATE) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR);
+       return mdate;*/
+       String itemString = "";
+       String[] parts = date.split(" ");
+       itemString +=  parts[0] +
+                   " " + parts[1] +
+                   " " + parts[2] + ", " + parts[5];
+
+       return itemString;
     }
 
     @Override
