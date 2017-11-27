@@ -99,7 +99,7 @@ public class DetailFragment extends Fragment{
             }else {
                 caloBurnList.add(caloBurned);
             }
-            distance += steps * portraitFragment.STEP_LENGTH / 1000;
+            distance += steps * portraitFragment.STEP_LENGTH / 1000.0;
             if(distance <=1) {
                 minCount += i * 5.0;        //each i = 5s
 
@@ -109,7 +109,7 @@ public class DetailFragment extends Fragment{
             }
 
         }
-        average = df.format(Math.abs(distance / minCount / 600.0));
+        average = df.format(Math.abs(distance / minCount / 60.0));
 
         if(count >0) {
             average = df.format(minCount / count / 60.0);
@@ -147,7 +147,7 @@ public class DetailFragment extends Fragment{
         Legend legend = lineChart.getLegend();
         legend.setForm(Legend.LegendForm.LINE);
 
-       // lineChart.invalidate();
+        lineChart.invalidate();
         return view;
     }
 
@@ -175,8 +175,8 @@ public class DetailFragment extends Fragment{
         set1.setCubicIntensity(0.2f);
         LineData data = new LineData(set1);
         //new
-        //lineChart.setMaxVisibleValueCount(60);
-        //lineChart.moveViewToX(data.getEntryCount());
+        lineChart.setMaxVisibleValueCount(60);
+        lineChart.moveViewToX(data.getEntryCount());
 
 
         lineChart.setData(data);

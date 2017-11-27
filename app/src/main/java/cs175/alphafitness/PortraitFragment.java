@@ -239,36 +239,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
             handler.postDelayed(this, 0);
         }
     };
-/*
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //Initialize sensor
-        sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        mStepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
-        URL2 = "content://cs175.alphafitness/workout";
-        workouts = Uri.parse(URL2);
-        Cursor cursor = getActivity().managedQuery(workouts, null, null, null, "user_id");
-        if(cursor.moveToFirst()) {
-            status = Integer.parseInt(cursor.getString(cursor.getColumnIndex(MyContentProvider.STATUS)));
-        }
-        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-
-        if(countSensor != null){
-            if(status == 1){
-                sensorManager.registerListener(this, countSensor, sensorManager.SENSOR_DELAY_UI);
-            } else{
-                sensorManager.unregisterListener(this,countSensor);
-            }
-        } else {
-            Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
-        }
-//        startWorkout();
-
-    }
-
-*/
     @Override
     public void onResume() {
 
@@ -307,24 +278,7 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Sensor countSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        // only register the listener if start button has not been click
-        if(record==false) {
-            if(countSensor != null){
-                sensorManager.unregisterListener(this,countSensor);
-            } else {
 
-                Toast.makeText(getActivity(), "Sensor not found", Toast.LENGTH_SHORT).show();
-            }
-        }else{
-            sensorManager.registerListener(this,countSensor, sensorManager.SENSOR_DELAY_FASTEST);
-        }
-    }
-
-    //Sensor change detector
     @Override
     public void onSensorChanged(SensorEvent event) {
 

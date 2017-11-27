@@ -163,42 +163,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
                     }
                 }
 
-/*
-                if (mMap != null) {
-                    if (mLocation == null) {
-                        mLocation = location;
-                        mMap.addMarker(new MarkerOptions().position(here).title("User"));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                    } else {
-                        mMap.addMarker(new MarkerOptions().position(here).title("User"));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                        mdistance = mLocation.distanceTo(location);
-                        if (mdistance >= 1) {
-                            distance += (mdistance / 1000);
-                            line = mMap.addPolyline(options);
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                        }
-                    }
-                }*/
 
-
-  /*                  if (mMap != null) {
-                        if (mLocation == null) {
-                            mLocation = location;
-                            mMap.addMarker(new MarkerOptions().position(here).title("User"));
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                        } else {
-                            mdistance = mLocation.distanceTo(location);
-                            if (mdistance >= 1) {
-                                distance += (mdistance / 1000);
-                                //distanceView.setText(df.format(distance));
-                                mMap.addMarker(new MarkerOptions().position(here).title("User"));
-                                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
-                           }
-                        }
-                    }
-
-       */
             }
 
 
@@ -230,51 +195,7 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
             getContentResolver().insert(MyContentProvider.URI2, contentValues);
             contentValues.clear();
         }
-        Cursor pc = managedQuery(workouts, null, null, null, "user_id");
-        //Log.e("wor========", String.valueOf(pc.getCount()));
-        Cursor p = managedQuery(profile, null, null, null, "user_id");
-        //Log.e("po========", String.valueOf(p.getCount()));
-        //contentValues.clear();
 
-/*
-        //Dumies data for workouts
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.1);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 10);
-        contentValues.put(MyContentProvider.KEY_TIME, 5000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.5);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 15);
-        contentValues.put(MyContentProvider.KEY_TIME, 10000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.03);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 3);
-        contentValues.put(MyContentProvider.KEY_TIME, 500);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 1.0);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 200);
-        contentValues.put(MyContentProvider.KEY_TIME, 50000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.1);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 10);
-        contentValues.put(MyContentProvider.KEY_TIME, 5000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-        contentValues.put(MyContentProvider.KEY_DISTANCE, 0.8);
-        contentValues.put(MyContentProvider.KEY_WORKOUTS, 1);
-        contentValues.put(MyContentProvider.KEY_CALO, 50);
-        contentValues.put(MyContentProvider.KEY_TIME, 30000);
-        getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-*/
     }
 
     @Override
