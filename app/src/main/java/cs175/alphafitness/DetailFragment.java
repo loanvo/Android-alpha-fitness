@@ -100,27 +100,27 @@ public class DetailFragment extends Fragment{
                 caloBurnList.add(caloBurned);
             }
             distance += steps * portraitFragment.STEP_LENGTH / 1000;
-            if(distance <=1){
-                minCount += i*5.0;        //each i = 5s
-                if(distance==1){
-                    count++;
+            if(distance <=1) {
+                minCount += i * 5.0;        //each i = 5s
+
+                if (distance == 1) {
                     distance = 0.0;
                 }
             }
-            if(count >0) {
-                average = df.format(minCount / count / 60.0);
 
-            }else{
-                average = df.format(minCount/60.0);
-            }
-            avgList.add(average);
-            averageView.setText(average);
-            minView.setText(Collections.min(avgList));
-            maxView.setText(Collections.max(avgList));
         }
+        average = df.format(Math.abs(distance / minCount / 600.0));
 
+        if(count >0) {
+            average = df.format(minCount / count / 60.0);
 
-
+        }else{
+            average = df.format(minCount/60.0);
+        }
+        avgList.add(average);
+        averageView.setText(average);
+        minView.setText(Collections.min(avgList));
+        maxView.setText(Collections.max(avgList));
 
         // Draw line chart of burned calo in every 5 min
         lineChart = (LineChart) view.findViewById(R.id.linechart);

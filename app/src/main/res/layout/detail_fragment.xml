@@ -40,7 +40,6 @@
                 android:layout_width="180dp"
                 android:layout_height="80dp"
                 android:gravity="center"
-                android:text="3:14"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="50sp" />
@@ -75,7 +74,6 @@
                 android:layout_height="40dp"
                 android:layout_width="wrap_content"
                 android:id="@+id/max_view"
-                android:text="1:57"
                 android:textColor="@android:color/black"
                 android:textSize="22sp"
                 android:gravity="center"
@@ -98,7 +96,6 @@
                 android:layout_height="40dp"
                 android:layout_width="wrap_content"
                 android:id="@+id/min_view"
-                android:text="1:57"
                 android:textColor="@android:color/black"
                 android:textSize="22sp"
                 android:gravity="center"
