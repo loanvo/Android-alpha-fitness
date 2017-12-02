@@ -1,5 +1,6 @@
 package cs175.alphafitness;
 
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -9,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -29,9 +32,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class ProfileScreen extends AppCompatActivity implements View.OnClickListener{
-    private TextView nameView;
-    private TextView genderView;
-    private TextView weightView;
+    public static TextView nameView;
+    public static TextView genderView;
+    public static TextView weightView;
 
     //user info layout
     private Button saveButton;
@@ -82,6 +85,10 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_screen);
         mprofile = new Profile();
+
+       nameView = (TextView) findViewById(R.id.name_view);
+        genderView = (TextView) findViewById(R.id.gender_view);
+        weightView = (TextView) findViewById(R.id.weight_view);
 
         contentValues = new ContentValues();
         URL1 = "content://cs175.alphafitness/profile";
@@ -230,17 +237,23 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        setContentView(R.layout.new_profile_layout);
-        nameEdit = (EditText) findViewById(R.id.edit_name);
-        genderEdit = (EditText) findViewById(R.id.edit_gender);
-        weightEdit = (EditText) findViewById(R.id.edit_weight);
-        saveButton = (Button) findViewById(R.id.save_button);
+        final Dialog dialog = new Dialog(ProfileScreen.this);
+        dialog.setContentView(R.layout.new_profile_layout);
+        //setContentView(R.layout.new_profile_layout);
+        nameEdit = (EditText) dialog.findViewById(R.id.edit_name);
+        genderEdit = (EditText) dialog.findViewById(R.id.edit_gender);
+        weightEdit = (EditText) dialog.findViewById(R.id.edit_weight);
+        saveButton = (Button) dialog.findViewById(R.id.save_button);
+        Window window = dialog.getWindow();
+        window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.show();
         Cursor cursor = managedQuery(profile, null, null, null, "user_id");
         if(cursor.moveToFirst()) {
             nameEdit.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_NAME)));
             genderEdit.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_GENDER)));
             weightEdit.setText(cursor.getString(cursor.getColumnIndex(MyContentProvider.KEY_WEIGHT)));
         }
+
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -266,31 +279,14 @@ public class ProfileScreen extends AppCompatActivity implements View.OnClickList
                 contentValues.put(MyContentProvider.KEY_GENDER, gender);
                 contentValues.put(MyContentProvider.KEY_WEIGHT, weight);
                 getContentResolver().insert(MyContentProvider.URI1, contentValues);
-
-                Cursor c = managedQuery(profile, null, null, null, "user_id");
-                int userid = 0;
-                if(c.moveToFirst()){
-                    selectName = c.getString(c.getColumnIndex(MyContentProvider.KEY_NAME));
-                    userid = Integer.parseInt(c.getString(c.getColumnIndex(MyContentProvider.KEY_ID)));
-                }
-                //insert userID into workouts table
-                contentValues.put(MyContentProvider.USER_ID, userid);
-                getContentResolver().insert(MyContentProvider.URI2, contentValues);
-
-                setContentView(R.layout.activity_profile_screen);
-                nameView = (TextView) findViewById(R.id.name_view);
-                genderView = (TextView) findViewById(R.id.gender_view);
-                weightView = (TextView) findViewById(R.id.weight_view);
-                nameView.setText(name);
-                genderView.setText(gender);
-                weightView.setText(Double.toString(weight));
-                Intent intent = new Intent(v.getContext(), ProfileScreen.class);
-                startActivity(intent);
-                finish();
+                ProfileScreen.nameView.setText(name);
+                ProfileScreen.genderView.setText(gender);
+                ProfileScreen.weightView.setText(String.valueOf(weight));
+                dialog.dismiss();
             }
         });
 
-        cancelButton = (Button) findViewById(R.id.cancel_button);
+        cancelButton = (Button) dialog.findViewById(R.id.cancel_button);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

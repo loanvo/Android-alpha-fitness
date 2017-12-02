@@ -51,7 +51,6 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
     private GoogleMap mMap = null;
     private Location mLocation = null;
     private ArrayList<LatLng> points;
-    Polyline line;
     private double distance;
 
     Boolean record;
@@ -145,15 +144,15 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
                 double newLongtitude = 0;
                 newLatitude = location.getLatitude();
                 newLongtitude = location.getLongitude();
-
-
+                PolylineOptions options = new PolylineOptions();
                 LatLng here = new LatLng(newLatitude, newLongtitude);
+                options.add(here);
+                
                 if(mMap != null){
                     if(mLocation == null){
                         mLocation = location;
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
                     }else {
-                        PolylineOptions options = new PolylineOptions();
                         options.add(here);
                         if(options != null) {
                             mMap.addPolyline(options.width(10).color(Color.BLUE));
@@ -162,7 +161,6 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
                     }
                 }
-
 
             }
 
