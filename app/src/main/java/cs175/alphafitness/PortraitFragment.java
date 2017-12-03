@@ -91,12 +91,17 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     RemoteConnection remoteConnection =null;
 
     private LinkedList<Integer> linkedList;
+    int [] stepsArray;
     int nsteps=0;
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.portrait_fragment, container, false);
         setRetainInstance(true);
 
+        linkedList = new LinkedList<Integer>();
+        for(int i =0; i<60; i++){
+            linkedList.add(0);
+        }
         URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
         URL2 = "content://cs175.alphafitness/workout";
@@ -146,27 +151,6 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
 
                 }
             });
-
-            timer = new Timer();
-            linkedList = new LinkedList<Integer>();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    for(int i = 0; i<=60; i++){
-                        linkedList.add(0);
-                    }
-                    for (int j =0; j <= 60; j++){
-                    if (linkedList.size() <= 60) {
-                        linkedList.remove(j);
-                        linkedList.addLast(rawSteps);
-                    } else {
-                        linkedList.removeFirst();
-                        linkedList.addLast(rawSteps);
-                    }
-                    }
-
-                }
-            }, 0, 5000);
 
             // user profile
             profileButton = (Button) view.findViewById(R.id.profile_button);
@@ -300,7 +284,19 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     }
 
     public LinkedList<Integer> getmCounterStepsSteps(){
-       return linkedList;
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                for(int j=0; j<linkedList.size(); j++) {
+                    linkedList.removeFirst();
+                    linkedList.addLast(rawSteps);
+                }
+
+            }
+        }, 0, 5000);
+
+        return linkedList;
     }
 
     @Override

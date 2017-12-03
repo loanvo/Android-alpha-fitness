@@ -83,8 +83,8 @@ public class DetailFragment extends Fragment{
         linkedList = new LinkedList<>();
         caloBurnList = new ArrayList<>();
         portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-        linkedList = portraitFragment.getmCounterStepsSteps();
 
+        linkedList = portraitFragment.getmCounterStepsSteps();
         URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
         int count = 1;

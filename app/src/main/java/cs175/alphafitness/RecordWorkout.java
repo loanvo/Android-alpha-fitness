@@ -45,6 +45,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallback {
     //Map's variable
@@ -139,20 +141,18 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
         // Define a listener that responds to location updates
         LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
+            public void onLocationChanged(final Location location) {
                 double newLatitude = 0;
                 double newLongtitude = 0;
                 newLatitude = location.getLatitude();
                 newLongtitude = location.getLongitude();
-                PolylineOptions options = new PolylineOptions();
                 LatLng here = new LatLng(newLatitude, newLongtitude);
-                options.add(here);
-                
                 if(mMap != null){
                     if(mLocation == null){
                         mLocation = location;
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
                     }else {
+                        PolylineOptions options = new PolylineOptions();
                         options.add(here);
                         if(options != null) {
                             mMap.addPolyline(options.width(10).color(Color.BLUE));
