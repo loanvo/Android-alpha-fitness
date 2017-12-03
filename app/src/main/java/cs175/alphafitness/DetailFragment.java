@@ -85,14 +85,15 @@ public class DetailFragment extends Fragment{
         portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
 
         linkedList = portraitFragment.getmCounterStepsSteps();
+        
         URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
         int count = 1;
         int steps = 0;
         double distance = 0.0;
         Double caloBurned = 0.0;
-        for (int i = 1; i < linkedList.size() - 1; i++) {
-            steps = linkedList.get(i + 1) - linkedList.get(i);
+        for (int i = 0; i < linkedList.size() - 1; i++) {
+            steps = linkedList.get(i);
             caloBurned = portraitFragment.calculateCaloBurned(steps);
             if(caloBurned == 0){
                 caloBurnList.add(0.0);

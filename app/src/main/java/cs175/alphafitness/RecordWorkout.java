@@ -141,25 +141,35 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
 
         // Define a listener that responds to location updates
         LocationListener locationListener = new LocationListener() {
+            PolylineOptions options = new PolylineOptions();
             public void onLocationChanged(final Location location) {
                 double newLatitude = 0;
                 double newLongtitude = 0;
                 newLatitude = location.getLatitude();
                 newLongtitude = location.getLongitude();
                 LatLng here = new LatLng(newLatitude, newLongtitude);
+
                 if(mMap != null){
                     if(mLocation == null){
                         mLocation = location;
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 18));
                     }else {
-                        PolylineOptions options = new PolylineOptions();
-                        options.add(here);
+
+                        Timer timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                options.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                            }
+                        }, 0, 5000);
                         if(options != null) {
                             mMap.addPolyline(options.width(10).color(Color.BLUE));
                         }
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 15));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 18));
 
                     }
+
+
                 }
 
             }

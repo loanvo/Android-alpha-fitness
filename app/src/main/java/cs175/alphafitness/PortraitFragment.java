@@ -161,6 +161,16 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
                     startActivity(intent);
                 }
             });
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                linkedList.removeFirst();
+                linkedList.addLast(mSteps);
+
+            }
+        }, 0, 5000);
             return view;
     }
 
@@ -284,17 +294,8 @@ public class PortraitFragment extends Fragment implements SensorEventListener{
     }
 
     public LinkedList<Integer> getmCounterStepsSteps(){
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                for(int j=0; j<linkedList.size(); j++) {
-                    linkedList.removeFirst();
-                    linkedList.addLast(rawSteps);
-                }
+        Log.d("port========", linkedList.toString());
 
-            }
-        }, 0, 5000);
 
         return linkedList;
     }
