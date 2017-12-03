@@ -46,6 +46,7 @@ public class DetailFragment extends Fragment{
     Timer timer;
     LinkedList<Integer> linkedList;
     ArrayList<Double> caloBurnList;
+    ArrayList<Double> distanceList;
     PortraitFragment portraitFragment;
 
     private LineChart lineChart;
@@ -63,7 +64,7 @@ public class DetailFragment extends Fragment{
 
     String average = "";  // (min/km)
     int  minCount = 0;     // min
-    ArrayList<String> avgList;
+    ArrayList<Double> avgList;
 
     private Thread thread;
     //Sensor's variable
@@ -82,13 +83,14 @@ public class DetailFragment extends Fragment{
         avgList = new ArrayList<>();
         linkedList = new LinkedList<>();
         caloBurnList = new ArrayList<>();
+        distanceList = new ArrayList<>();
         portraitFragment = (PortraitFragment) getFragmentManager().findFragmentById(R.id.fragment1);
-
-        linkedList = portraitFragment.getmCounterStepsSteps();
-        
+        if(portraitFragment.getmCounterStepsSteps() != null) {
+            linkedList = portraitFragment.getmCounterStepsSteps();
+        }
         URL1 = "content://cs175.alphafitness/profile";
         profile = Uri.parse(URL1);
-        int count = 1;
+
         int steps = 0;
         double distance = 0.0;
         Double caloBurned = 0.0;
@@ -100,28 +102,20 @@ public class DetailFragment extends Fragment{
             }else {
                 caloBurnList.add(caloBurned);
             }
-            distance += steps * portraitFragment.STEP_LENGTH / 1000.0;
-            if(distance <=1) {
-                minCount += i * 5.0;        //each i = 5s
+            distance = steps * portraitFragment.STEP_LENGTH / 1000.0;
+            distanceList.add(distance);
 
-                if (distance == 1) {
-                    distance = 0.0;
-                }
-            }
 
         }
-        average = df.format(Math.abs(distance / minCount / 60.0));
-
-        if(count >0) {
-            average = df.format(minCount / count / 60.0);
-
-        }else{
-            average = df.format(minCount/60.0);
+        double total = 0.0;
+        for(int j =0; j < distanceList.size(); j++){
+            total += distanceList.get(j);
         }
-        avgList.add(average);
+        average = df.format(total /distanceList.size());
+
         averageView.setText(average);
-        minView.setText(Collections.min(avgList));
-        maxView.setText(Collections.max(avgList));
+        minView.setText(df.format((Collections.min(distanceList))));
+        maxView.setText(df.format(Collections.max(distanceList)));
 
         // Draw line chart of burned calo in every 5 min
         lineChart = (LineChart) view.findViewById(R.id.linechart);
@@ -143,7 +137,7 @@ public class DetailFragment extends Fragment{
         YAxis rightAxis = lineChart.getAxisRight();
         rightAxis.setEnabled(false);
 
-        setDara(caloBurnList.size(), caloBurnList);
+        setDara(distanceList, caloBurnList);
 
         Legend legend = lineChart.getLegend();
         legend.setForm(Legend.LegendForm.LINE);
@@ -153,19 +147,16 @@ public class DetailFragment extends Fragment{
     }
 
 
-    public void setDara(int count,ArrayList<Double> ranges){
-        ArrayList<Entry> entries = new ArrayList<Entry>();
-        if(count == 0) {
-            entries.add(new Entry(0, 0));
-        }else{
-            for (int i = 0; i < count; i++) {
-                float xVal = (float) i;
-                float yVal = Float.parseFloat(String.valueOf(ranges.get(i)) );
-                entries.add(new Entry(xVal, yVal));
-            }
+    public void setDara(ArrayList<Double> distances,ArrayList<Double> ranges){
+        ArrayList<Entry> entries1 = new ArrayList<Entry>();
+        for (int i = 0; i < ranges.size(); i++) {
+            float xVal = (float) i;
+            float yVal = Float.parseFloat(String.valueOf(ranges.get(i)) );
+            entries1.add(new Entry(xVal, yVal));
         }
+        ArrayList<ILineDataSet> dataset= new ArrayList<>();
        // Collections.sort(entries, new EntryXComparator());
-        LineDataSet set1 = new LineDataSet(entries, "Calo Burned in 5 min");
+        LineDataSet set1 = new LineDataSet(entries1, "Calo Burned in 5 min");
         set1.setDrawCircles(false);
         set1.setFillColor(Color.MAGENTA);
         set1.setLineWidth(3f);
@@ -174,11 +165,25 @@ public class DetailFragment extends Fragment{
         set1.setFillColor(Color.CYAN);
         set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         set1.setCubicIntensity(0.2f);
-        LineData data = new LineData(set1);
-        //new
-        lineChart.setMaxVisibleValueCount(60);
-        lineChart.moveViewToX(data.getEntryCount());
+        dataset.add(set1);
 
+        ArrayList<Entry> entries2 = new ArrayList<Entry>();
+        for (int i = 0; i < distances.size(); i++) {
+            float xVal = (float) i;
+            float yVal = Float.parseFloat(String.valueOf(distances.get(i)) );
+            entries2.add(new Entry(xVal, yVal));
+        }
+        LineDataSet set2 = new LineDataSet(entries1, "Calo Burned in 5 min");
+        set2.setDrawCircles(false);
+        set2.setFillColor(Color.GRAY);
+        set2.setLineWidth(3f);
+        set2.setFillAlpha(255);
+        set2.setDrawFilled(true);
+        set2.setFillColor(Color.LTGRAY);
+        set2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set2.setCubicIntensity(0.2f);
+        dataset.add(set2);
+        LineData data = new LineData(dataset);
 
         lineChart.setData(data);
     }

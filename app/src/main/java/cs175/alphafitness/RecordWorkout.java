@@ -148,20 +148,21 @@ public class RecordWorkout extends AppCompatActivity implements OnMapReadyCallba
                 newLatitude = location.getLatitude();
                 newLongtitude = location.getLongitude();
                 LatLng here = new LatLng(newLatitude, newLongtitude);
-
+                options.add(here);
                 if(mMap != null){
                     if(mLocation == null){
                         mLocation = location;
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 18));
                     }else {
 
-                        Timer timer = new Timer();
+                       /* Timer timer = new Timer();
                         timer.schedule(new TimerTask() {
                             @Override
                             public void run() {
                                 options.add(new LatLng(location.getLatitude(), location.getLongitude()));
                             }
-                        }, 0, 5000);
+                        }, 0, 5000);*/
+                       // options.add(new LatLng(location.getLatitude(), location.getLongitude()));
                         if(options != null) {
                             mMap.addPolyline(options.width(10).color(Color.BLUE));
                         }
